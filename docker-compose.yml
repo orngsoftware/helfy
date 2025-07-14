@@ -1,3 +1,5 @@
+networks:
+  net:
 services:
   backend:
     container_name: backend
@@ -5,5 +7,32 @@ services:
       - "8000:8000"
     build:
       context: ./backend
-    volumes:
+    volumes: #this should be removed on production
       - ./backend:/app
+    environment:
+      - DB_URL=${DB_URL}
+    networks:
+      - net
+
+  frontend:
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    build:
+      context: ./frontend
+    networks:
+      - net
+  database:
+    container_name: database
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - net
+
+volumes:
+  pg_data:
