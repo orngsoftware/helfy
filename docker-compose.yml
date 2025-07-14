@@ -1,0 +1,9 @@
+services:
+  backend:
+    container_name: backend
+    ports:
+      - "8000:8000"
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/app
