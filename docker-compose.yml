@@ -9,8 +9,6 @@ services:
       context: ./backend
     volumes: #this should be removed on production
       - ./backend:/app
-    environment:
-      - DB_URL=${DB_URL}
     networks:
       - net
 
