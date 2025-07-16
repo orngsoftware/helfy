@@ -3,7 +3,7 @@ networks:
 services:
   backend:
     container_name: backend
-    ports:
+    ports: #this should be removed on production
       - "8000:8000"
     build:
       context: ./backend

@@ -1,7 +1,9 @@
 from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from datetime import date
+from sqlalchemy.dialects.postgresql import UUID, CIDR
+import uuid
+from datetime import date, datetime
 from typing import List
 
 class Users(Base):
@@ -21,6 +23,15 @@ class Users(Base):
     habits: Mapped[List["UserHabits"]] = relationship(back_populates="user")
     companion: Mapped["Companions"] = relationship(back_populates="user")
 
+class RefreshSessions(Base):
+    __tablename__="refresh_sessions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    refresh_token: Mapped[uuid.UUID] = mapped_column(UUID)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    expires_at: Mapped[datetime]
+    created_at: Mapped[datetime]
+    ip_address: Mapped[str] = mapped_column(CIDR)
+
 class UserHabits(Base):
     __tablename__="user_habits"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -37,8 +48,9 @@ class Tasks(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str]
-    habit: Mapped[bool]
-    day_create_habit: Mapped[int] = mapped_column(nullable=True)
+    habit: Mapped[bool] # this is used for automatic habit creation
+    day_create_habit: Mapped[int] = mapped_column(nullable=True) # this as well
+    difficulty: Mapped[int]
     xp: Mapped[int]
 
 class Learnings(Base):
