@@ -12,11 +12,11 @@ class Users(Base):
     email: Mapped[str]
     password: Mapped[str]
     started: Mapped[date]
-    last_completed: Mapped[date]
-    last_streak_update: Mapped[date]
-    streak: Mapped[int]
-    xp: Mapped[int]
-    learning_xp: Mapped[int]
+    last_completed: Mapped[date] = mapped_column(nullable=True)
+    last_streak_update: Mapped[date] = mapped_column(nullable=True)
+    streak: Mapped[int] = mapped_column(nullable=True)
+    xp: Mapped[int] = mapped_column(nullable=True)
+    learning_xp: Mapped[int] = mapped_column(nullable=True)
 
     tasks_completed: Mapped[List["Tasks"]] = relationship()
     learnings_completed: Mapped[List["Learnings"]] = relationship()
