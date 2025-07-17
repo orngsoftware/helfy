@@ -1,16 +1,39 @@
 from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, CIDR
+from sqlalchemy import ForeignKey, Table, Column
+from sqlalchemy.dialects.postgresql import UUID, CIDR, BYTEA
 import uuid
 from datetime import date, datetime
 from typing import List
+
+class UserCompletedTasks(Base):
+    __tablename__="users_completed_tasks"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id"), primary_key=True)
+
+    user: Mapped["Users"] = relationship(back_populates="completed_tasks")
+    task: Mapped["Tasks"] = relationship()
+
+class UserCompletedLearnings(Base):
+    __tablename__ = "user_completed_learnings"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    learning_id: Mapped[int] = mapped_column(ForeignKey("learnings.id"), primary_key=True)
+
+    user: Mapped["Users"] = relationship(back_populates="completed_learnings")
+    learning: Mapped["Learnings"] = relationship()
+
+companion_accessories = Table(
+    "companion_accessories",
+    Base.metadata,
+    Column("companion_id", ForeignKey("companions.id"), primary_key=True),
+    Column("accessories_id", ForeignKey("accessories.id"), primary_key=True)
+)
 
 class Users(Base):
     __tablename__="users"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str]
-    password: Mapped[str]
+    password: Mapped[bytes] = mapped_column(BYTEA)
     started: Mapped[date]
     last_completed: Mapped[date] = mapped_column(nullable=True)
     last_streak_update: Mapped[date] = mapped_column(nullable=True)
@@ -18,8 +41,8 @@ class Users(Base):
     xp: Mapped[int] = mapped_column(nullable=True)
     learning_xp: Mapped[int] = mapped_column(nullable=True)
 
-    tasks_completed: Mapped[List["Tasks"]] = relationship()
-    learnings_completed: Mapped[List["Learnings"]] = relationship()
+    completed_tasks: Mapped[List["UserCompletedTasks"]] = relationship(back_populates="user")
+    completed_learnings: Mapped[List["UserCompletedLearnings"]] = relationship(back_populates="user")
     habits: Mapped[List["UserHabits"]] = relationship(back_populates="user")
     companion: Mapped["Companions"] = relationship(back_populates="user")
 
@@ -69,7 +92,7 @@ class Companions(Base):
     type: Mapped[str] = mapped_column(default="plant")
     pot: Mapped[str] = mapped_column(default="classic")
 
-    accessories: Mapped["Accessories"] = relationship()
+    accessories: Mapped[List["Accessories"]] = relationship(secondary=companion_accessories)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["Users"] = relationship(back_populates="companion")

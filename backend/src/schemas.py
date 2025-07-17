@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from datetime import date
 
 class TokenSchema(BaseModel):
     access_token: str
@@ -7,4 +6,4 @@ class TokenSchema(BaseModel):
 
 class UserSchema(BaseModel):
     email: EmailStr
-    password: bytes
+    password: str

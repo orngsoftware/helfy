@@ -25,7 +25,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = get_settings().db.get_db_url
+    url = get_settings().get_db_url
     context.configure(
         url=url,
         target_metadata=target_metadata,
