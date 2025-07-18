@@ -1,5 +1,4 @@
 from fastapi.security import OAuth2PasswordBearer
-from jwt.exceptions import InvalidTokenError
 from .database import get_session
 from fastapi import Depends, HTTPException, status
 from .models import Users
@@ -12,20 +11,17 @@ from typing import Annotated
 settings = Settings()
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
-def get_current_user(token: Annotated[str, Depends(oauth2_bearer)],  # <-- change this
+def get_current_user(token: Annotated[str, Depends(oauth2_bearer)],
                      db: Annotated[Session, Depends(get_session)]) -> Users:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        user_id = decode_jwt(token)
-        if not user_id:
-            raise credentials_exception
-    except InvalidTokenError:
+    user_id = decode_jwt(token)
+    if not user_id:
         raise credentials_exception
-    user =  get_user(db, user_id=user_id)
+    user = get_user(db, user_id=user_id)
     if not user:
         raise credentials_exception
     return user

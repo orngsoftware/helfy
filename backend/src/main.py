@@ -48,7 +48,7 @@ def login(response: Response,
 def refresh_access_token(db: Annotated[Session, Depends(get_session)], 
                          response: Response, 
                          refresh_token: UUID = Cookie(None)):
-    token_result = au.get_refresh_token(db, refresh_token)
+    token_result = au.is_valid_refresh_token(db, refresh_token)
     if token_result == False:
         response.delete_cookie("refresh_token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
@@ -59,3 +59,15 @@ def refresh_access_token(db: Annotated[Session, Depends(get_session)],
     })
     response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, secure=True)
     return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
+
+@app.post("/auth/log-out")
+def logout(db: Annotated[Session, Depends(get_session)], 
+                         response: Response, 
+                         refresh_token: UUID = Cookie(None)):
+    token_result = au.is_valid_refresh_token(db, refresh_token)
+    if token_result == False:
+        response.delete_cookie("refresh_token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+    
+    response.delete_cookie("refresh_token")
+    return {"ok": True, "msg": "Successfully logged out"}

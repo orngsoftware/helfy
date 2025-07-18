@@ -18,10 +18,12 @@ def encode_jwt(payload: dict[str, Any],
                expire_min: int = settings.access_token_exp
 ) -> str:
     to_encode = payload.copy()
+
+    to_encode["sub"] = str(to_encode["sub"])
     expire = now + (expire_timedelta or timedelta(minutes=expire_min))
 
     to_encode.update({"exp": expire, "iat": now})
-    encoded = jwt.encode(payload=to_encode, key=key, algorithm=algorithm)
+    encoded = jwt.encode(to_encode, key, algorithm)
     return encoded
 
 def decode_jwt(
@@ -30,8 +32,11 @@ def decode_jwt(
      algorithm: str = settings.algorithm   
 ) -> int:
     """Decodes JWT token and returns user ID"""
-    decoded = jwt.decode(jwt=token, key=key, algorithms=[algorithm])
-    return decoded.get("sub")
+    try:
+        decoded = jwt.decode(token, key, algorithms=[algorithm])
+        return int(decoded.get("sub"))
+    except jwt.exceptions.InvalidTokenError:
+        return None
 
 def hash_password(password: str) -> bytes:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
@@ -61,15 +66,19 @@ def create_refresh_token(db: Session,
     db.commit()
     return refresh_token
 
-def get_refresh_token(db: Session, refresh_token: uuid.UUID) -> bool | int:
+def is_valid_refresh_token(db: Session, refresh_token: uuid.UUID) -> bool | int:
+    """Returns user id if token is valid and deletes old one"""
     token = db.execute(select(RefreshSessions).where(RefreshSessions.refresh_token == refresh_token)).scalar_one_or_none()
-    
     delete_query = delete(RefreshSessions).where(RefreshSessions.refresh_token == refresh_token)
+    
     if not token:
         return False
     if is_expired(token.expires_at):
         db.execute(delete_query)
+        db.commit()
         return False
     
+    # When when NGINX setup is done check IPs or Fingerprints.
     db.execute(delete_query)
+    db.commit()
     return token.user_id
