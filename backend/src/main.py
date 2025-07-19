@@ -1,7 +1,8 @@
 from .schemas import UserSchema, TokenSchema
 from .database import get_session
 from .models import Users
-from .services.users import create_user, get_user
+from .services.users import create_user, get_user, days
+from .services.tasks import get_uncompleted
 from .auth import utils as au
 from .dependecies import get_current_user
 from sqlalchemy.orm import Session
@@ -18,10 +19,6 @@ app = FastAPI(
 @app.get("/")
 def root():
     return {"msg": "Helfy backend is running"}
-
-@app.get("/protected")
-def protected(user: Annotated[Users, Depends(get_current_user)]):
-    return {"msg": "This route is protected!", "user_email": user.email}
 
 @app.post("/auth/sign-up")
 def register(user_data: UserSchema, db: Annotated[Session, Depends(get_session)]):
@@ -71,3 +68,33 @@ def logout(db: Annotated[Session, Depends(get_session)],
     
     response.delete_cookie("refresh_token")
     return {"ok": True, "msg": "Successfully logged out"}
+
+@app.get("/tasks")
+def get_tasks(db: Annotated[Session, Depends(get_session)], 
+              user: Annotated[Users, Depends(get_current_user)]):
+    user_day = days(user.started)
+    tasks = get_uncompleted(db, user.id, user_day)
+    if not tasks:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, details="No tasks available")
+    return {"ok": True, "tasks": tasks, "user_day": user_day}
+
+@app.get("/tasks/habits")
+def get_habits():
+    # create habits automatically
+    pass
+
+@app.post("/tasks/complete")
+def complete_task():
+    pass
+
+@app.post("/tasks/incomplete")
+def incomplete_task():
+    pass
+
+@app.post("/tasks/habits/mark")
+def mark_habit():
+    pass
+
+@app.post("/tasks/habits/unmark")
+def unmark_habit():
+    pass

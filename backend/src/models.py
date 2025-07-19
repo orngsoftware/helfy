@@ -6,10 +6,11 @@ import uuid
 from datetime import date, datetime
 from typing import List
 
-class UserCompletedTasks(Base):
-    __tablename__="users_completed_tasks"
+class UserTasks(Base):
+    __tablename__="users_tasks"
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id"), primary_key=True)
+    completed: Mapped[bool]
 
     user: Mapped["Users"] = relationship(back_populates="completed_tasks")
     task: Mapped["Tasks"] = relationship()
@@ -41,7 +42,7 @@ class Users(Base):
     xp: Mapped[int] = mapped_column(nullable=True)
     learning_xp: Mapped[int] = mapped_column(nullable=True)
 
-    completed_tasks: Mapped[List["UserCompletedTasks"]] = relationship(back_populates="user")
+    completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
     completed_learnings: Mapped[List["UserCompletedLearnings"]] = relationship(back_populates="user")
     habits: Mapped[List["UserHabits"]] = relationship(back_populates="user")
     companion: Mapped["Companions"] = relationship(back_populates="user")
@@ -58,7 +59,8 @@ class RefreshSessions(Base):
 class UserHabits(Base):
     __tablename__="user_habits"
     id: Mapped[int] = mapped_column(primary_key=True)
-    habit_created: Mapped[date] 
+    habit_created: Mapped[date]
+    last_completed: Mapped[date] = mapped_column(nullable=True)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["Users"] = relationship(back_populates="habits")
@@ -71,16 +73,18 @@ class Tasks(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str]
-    habit: Mapped[bool] # this is used for automatic habit creation
-    day_create_habit: Mapped[int] = mapped_column(nullable=True) # this as well
+    day_create_habit: Mapped[int] = mapped_column(nullable=True) # automatic habit creation
+    day: Mapped[int]
     difficulty: Mapped[int]
     xp: Mapped[int]
+    delayed_xp: Mapped[int]
 
 class Learnings(Base):
     __tablename__="learnings"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
     tldr: Mapped[str]
+    day: Mapped[int]
     body: Mapped[str]
     learning_xp: Mapped[int]
 

@@ -26,3 +26,8 @@ def get_user(db: Session, email: str | None = None, user_id: int | None = None) 
     elif user_id:
         user = db.execute(select(Users).where(Users.id == user_id)).scalar_one_or_none()
     return user
+
+def days(start_date: datetime.date) -> int:
+    """Determines how many days have passed from the date"""
+    dif = datetime.date.today() - start_date
+    return dif.days
