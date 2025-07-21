@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from typing import Literal
 
 class TokenSchema(BaseModel):
     access_token: str
@@ -7,3 +8,7 @@ class TokenSchema(BaseModel):
 class UserSchema(BaseModel):
     email: EmailStr
     password: str
+
+class StreakSchema(BaseModel):
+    streak: int
+    status: Literal['kept', 'same', 'lost']

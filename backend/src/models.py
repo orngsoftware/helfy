@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, Table, Column
 from sqlalchemy.dialects.postgresql import UUID, CIDR, BYTEA
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import List
 
 class UserTasks(Base):
@@ -36,10 +36,10 @@ class Users(Base):
     email: Mapped[str]
     password: Mapped[bytes] = mapped_column(BYTEA)
     started: Mapped[date]
-    last_completed: Mapped[date] = mapped_column(nullable=True)
-    last_streak_update: Mapped[date] = mapped_column(nullable=True)
-    streak: Mapped[int] = mapped_column(nullable=True)
-    xp: Mapped[int] = mapped_column(nullable=True)
+    last_completed: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
+    last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
+    streak: Mapped[int] = mapped_column(nullable=True, default=0)
+    xp: Mapped[int] = mapped_column(nullable=True, default=0)
     learning_xp: Mapped[int] = mapped_column(nullable=True)
 
     completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
