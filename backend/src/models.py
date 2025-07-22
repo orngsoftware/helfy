@@ -40,7 +40,7 @@ class Users(Base):
     last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
     streak: Mapped[int] = mapped_column(nullable=True, default=0)
     xp: Mapped[int] = mapped_column(nullable=True, default=0)
-    learning_xp: Mapped[int] = mapped_column(nullable=True)
+    learning_xp: Mapped[int] = mapped_column(nullable=True, default=0)
 
     completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
     completed_learnings: Mapped[List["UserCompletedLearnings"]] = relationship(back_populates="user")

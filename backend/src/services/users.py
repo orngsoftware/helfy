@@ -34,10 +34,15 @@ def days(start_date: datetime.date) -> int:
     dif = today - start_date
     return dif.days
 
-def change_xp(amount: int, user_id: int, decrease: bool = False) -> Update:
+def change_xp(amount: int, user_id: int, decrease: bool = False, learning: bool = False) -> Update:
     """Constructs Update for increasing or decreasing XP"""
-    xp_stmt = (Users.xp - amount) if decrease else (Users.xp + amount)
-    result = update(Users).where(Users.id == user_id).values(
+    if learning:
+        xp_stmt = Users.learning_xp + amount
+        result = update(Users).where(Users.id == user_id).values(
+            learning_xp=xp_stmt)
+    else: 
+        xp_stmt = (Users.xp - amount) if decrease else (Users.xp + amount)
+        result = update(Users).where(Users.id == user_id).values(
             xp=xp_stmt)
     return result
 

@@ -78,7 +78,7 @@ def is_valid_refresh_token(db: Session, refresh_token: uuid.UUID) -> bool | int:
         db.commit()
         return False
     
-    # When when NGINX setup is done check IPs or Fingerprints.
+    # When NGINX setup is done check IPs or Fingerprints.
     db.execute(delete_query)
     db.commit()
     return token.user_id

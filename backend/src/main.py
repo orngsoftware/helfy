@@ -1,8 +1,9 @@
-from .schemas import UserSchema, TokenSchema, StreakSchema
+from .schemas import UserSchema, TokenSchema
 from .database import get_session
 from .models import Users
 from .services.users import create_user, get_user, days, calculate_streak
 from .services.tasks import get_uncompleted_tasks, complete, create_habit, create_habits_auto, get_uncompleted_habits, remove_habit
+from .services.learnings import get_learning_day, learning_complete
 from .auth import utils as au
 from .exceptions import DuplicateError, TimeGapError
 from .dependecies import get_current_user
@@ -134,3 +135,21 @@ def unmark_habit(db: Annotated[Session, Depends(get_session)],
     except TimeGapError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can't unmark a habit that was created less than 7 days ago")
     return {"ok": True, "msg": "Successfully unmarked the habit"}
+
+@app.get("/learning/")
+def get_learning(db: Annotated[Session, Depends(get_session)], 
+              user: Annotated[Users, Depends(get_current_user)]):
+    learning = get_learning_day(db, days(user.started))
+    if not learning:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No learning for this day")
+    return {"ok": True, "learning": learning}
+
+@app.post("/learning/complete/{learning_id}")
+def complete_learning(db: Annotated[Session, Depends(get_session)], 
+              user: Annotated[Users, Depends(get_current_user)],
+              learning_id: int):
+    try:
+        learning_complete(db, learning_id, user.id)
+    except DuplicateError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can't complete one learning more than once")
+    return {"ok": True, "msg": "Successfully completed the learning"}
