@@ -92,9 +92,8 @@ class Companions(Base):
     __tablename__="companions"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(default="My Helfy")
-    stage: Mapped[int]
+    stage: Mapped[int] = mapped_column(default=1)
     type: Mapped[str] = mapped_column(default="plant")
-    pot: Mapped[str] = mapped_column(default="classic")
 
     accessories: Mapped[List["Accessories"]] = relationship(secondary=companion_accessories)
 

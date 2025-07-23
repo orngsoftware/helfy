@@ -4,6 +4,7 @@ from .models import Users
 from .services.users import create_user, get_user, days, calculate_streak
 from .services.tasks import get_uncompleted_tasks, complete, create_habit, create_habits_auto, get_uncompleted_habits, remove_habit
 from .services.learnings import get_learning_day, learning_complete
+from .services.companions import get_companion, get_accessories, add_accessory, change_companion_type, change_companion_name
 from .auth import utils as au
 from .exceptions import DuplicateError, TimeGapError
 from .dependecies import get_current_user
@@ -95,7 +96,7 @@ def complete_task(db: Annotated[Session, Depends(get_session)],
               user: Annotated[Users, Depends(get_current_user)],
               task_id: int, delayed: bool = False):
     try:
-        complete(db, user.id, task_id, delayed=delayed)
+        complete(db, user, task_id, delayed=delayed)
     except DuplicateError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This task is already completed by the user")
     return {"ok": True, "msg": "Successfully completed the task"}
@@ -149,7 +150,45 @@ def complete_learning(db: Annotated[Session, Depends(get_session)],
               user: Annotated[Users, Depends(get_current_user)],
               learning_id: int):
     try:
-        learning_complete(db, learning_id, user.id)
+        learning_complete(db, learning_id, user)
     except DuplicateError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can't complete one learning more than once")
     return {"ok": True, "msg": "Successfully completed the learning"}
+
+@app.get("/companion")
+def companion(user: Annotated[Users, Depends(get_current_user)]):
+    result = get_companion(user)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Companion doesn't exist")
+    return {"ok": True, "companion": result}
+
+@app.get("/companion/accessories")
+def accessories(db: Annotated[Session, Depends(get_session)], 
+              user: Annotated[Users, Depends(get_current_user)]):
+    return {"ok": True, "accessories": get_accessories(db, user)}
+
+@app.post("/companion/accessories/buy/{accessory_id}")
+def buy_accessory(db: Annotated[Session, Depends(get_session)], 
+                  user: Annotated[Users, Depends(get_current_user)], 
+                  accessory_id: int):
+    try:
+        add_accessory(db, user, accessory_id)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough XP to buy this accessory")
+    except DuplicateError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User has purchased this accessory already")
+    return {"ok": True, "msg": "Successfully purchased new accessory"}
+
+@app.post("/companion/change/{companion_type}")
+def change_companion(db: Annotated[Session, Depends(get_session)], 
+                    user: Annotated[Users, Depends(get_current_user)],
+                    companion_type: str):
+    change_companion_type(db, companion_type, user.id)
+    return {"ok": True, "msg": f"Successfully changed companion type to {companion_type}"}
+
+@app.patch("/companion/change-name/{new_name}")
+def change_name(db: Annotated[Session, Depends(get_session)], 
+                user: Annotated[Users, Depends(get_current_user)], 
+                new_name: str):
+    change_companion_name(db, new_name, user.id)
+    return {"ok": True, "msg": f"Successfully change companion name to {new_name}"}

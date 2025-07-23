@@ -3,7 +3,7 @@ from sqlalchemy import select, update, Select, delete
 from datetime import date
 from typing import List
 from ..exceptions import DuplicateError, TimeGapError
-from ..models import Tasks, UserTasks, UserHabits
+from ..models import Tasks, UserTasks, UserHabits, Users
 from .users import change_xp, update_last_completed, increase_streak
 
 def user_completed_tasks(user_id) -> Select:
@@ -31,36 +31,35 @@ def get_uncompleted_habits(db: Session, user_id: int) -> List[UserHabits]:
     )).scalars().all()
     return habits
 
-def complete(db: Session, user_id: int, task_id: int, completed: bool = True, delayed: bool = False) -> None:
+def complete(db: Session, user: Users, task_id: int, completed: bool = True, delayed: bool = False) -> None:
     """Completes both habits and tasks"""
     task = db.execute(select(Tasks).where(Tasks.id == task_id)).scalar_one_or_none()
     xp = task.delayed_xp if delayed else task.xp
-    change_xp_query = change_xp(xp, user_id) if completed else change_xp(xp, user_id, decrease=True)
+    change_xp_query = change_xp(xp, user.id) if completed else change_xp(xp, user.id, decrease=True)
     
-    if task_id in db.execute(select(UserHabits.task_id).where(
-        UserHabits.user_id == user_id, UserHabits.last_completed != date.today())).scalars().all():
+    if task_id in [habit.id for habit in user.habits]:
         db.execute(update(UserHabits).where(
-            UserHabits.user_id == user_id,
+            UserHabits.user_id == user.id,
             UserHabits.task_id == task_id
         ).values(last_completed=date.today()))
         
-        update_last_completed(db, user_id)
-        increase_streak(db, user_id)
-        db.execute(change_xp(xp*2, user_id))
+        update_last_completed(db, user.id)
+        increase_streak(db, user.id)
+        db.execute(change_xp(xp*2, user.id))
         db.commit()
         return None
 
-    if db.execute(select(UserTasks.task_id).where(UserTasks.user_id == user_id, 
+    if db.execute(select(UserTasks.task_id).where(UserTasks.user_id == user.id, 
                                                   UserTasks.task_id == task_id)).scalar_one_or_none():
         raise DuplicateError
     
     new_complete = UserTasks(
-        user_id=user_id,
+        user_id=user.id,
         task_id=task_id,
         completed=completed
     )
-    update_last_completed(db, user_id)
-    increase_streak(db, user_id)
+    update_last_completed(db, user.id)
+    increase_streak(db, user.id)
     db.execute(change_xp_query)
     db.add(new_complete)
     db.commit()
