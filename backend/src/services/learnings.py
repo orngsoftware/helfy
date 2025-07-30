@@ -9,9 +9,21 @@ def get_learning_day(db: Session, day: int) -> Learnings | None:
     """Gets learning relevant for the day"""
     result = db.execute(select(Learnings).where(Learnings.day <= day)).scalars().first()
     return result
+
+def get_learning_short(db: Session, day: int, user: Users) -> tuple[Learnings, str] | None:
+    """Returns tldr, title and xp of the learning, and whether user has completed it"""
+    learning = db.execute(select(Learnings).where(Learnings.day <= day)).scalars().first()
+    if not learning:
+        return None
+    
+    user_completed_learnings = [l.learning_id for l in user.completed_learnings]
+    completed = True if learning.id in user_completed_learnings else False
+
+    return (learning, completed)
+
     
 def learning_complete(db: Session, learning_id: int, user: Users) -> None:
-    user_completed_learnings = [l.id for l in user.completed_learnings]
+    user_completed_learnings = [l.learning_id for l in user.completed_learnings]
     
     if learning_id in user_completed_learnings:
         raise DuplicateError

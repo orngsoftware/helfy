@@ -3,7 +3,7 @@ from .database import get_session
 from .models import Users
 from .services.users import create_user, get_user, days, calculate_streak
 from .services.tasks import get_uncompleted_tasks, complete, create_habit, create_habits_auto, get_uncompleted_habits, remove_habit
-from .services.learnings import get_learning_day, learning_complete
+from .services.learnings import get_learning_day, learning_complete, get_learning_short
 from .services.companions import get_companion, get_accessories, add_accessory, change_companion_type, change_companion_name
 from .auth import utils as au
 from .exceptions import DuplicateError, TimeGapError
@@ -11,12 +11,28 @@ from .dependecies import get_current_user
 from sqlalchemy.orm import Session
 from uuid import UUID
 from fastapi import FastAPI, Depends, HTTPException, Response, Cookie, status
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
 
 app = FastAPI(
     title="Helfy API",
     description="This is Helfy's API documentation",
     root_path="/api/v1"
+)
+
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:80",
+    "http://localhost:443"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 @app.get("/")
@@ -40,7 +56,7 @@ def login(response: Response,
             "sub": user.id
         })
         refresh_token = au.create_refresh_token(db, user.id)
-        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True)
+        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax")
         return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
@@ -57,7 +73,7 @@ def refresh_access_token(db: Annotated[Session, Depends(get_session)],
     access_token = au.encode_jwt(payload={
         "sub": token_result
     })
-    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, secure=True)
+    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, secure=False, samesite="lax")
     return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
 
 @app.post("/auth/log-out")
@@ -137,13 +153,18 @@ def unmark_habit(db: Annotated[Session, Depends(get_session)],
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Can't unmark a habit that was created less than 7 days ago")
     return {"ok": True, "msg": "Successfully unmarked the habit"}
 
-@app.get("/learning/")
+@app.get("/learning")
 def get_learning(db: Annotated[Session, Depends(get_session)], 
-              user: Annotated[Users, Depends(get_current_user)]):
-    learning = get_learning_day(db, days(user.started))
+              user: Annotated[Users, Depends(get_current_user)], short: bool | None = None):
+    if not short:
+        learning = get_learning_day(db, days(user.started))
+        result = {"ok": True, "learning": learning}
+    else:
+        learning = get_learning_short(db, days(user.started), user)
+        result = {"ok": True, "learning": learning[0], "completed": learning[1]}
     if not learning:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No learning for this day")
-    return {"ok": True, "learning": learning}
+    return result
 
 @app.post("/learning/complete/{learning_id}")
 def complete_learning(db: Annotated[Session, Depends(get_session)], 

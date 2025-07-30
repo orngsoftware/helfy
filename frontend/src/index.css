@@ -1,68 +1,205 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+    font-family: Arial, Helvetica, sans-serif;
+    --black-color: #4b4b4b;
+    --grey-color: #f0f0f0;
+    --dark-grey-color: #d9d9d9;
+    --dark-green-color: #80b918;
+    --green-color: #e1fdad;
+    --dark-blue-color: #52abff;
+    --blue-color: #b3daff;
+    --orange-color: #ffad54;
+    --dark-yellow-color: #e8a92b;
+    --yellow-color: #ffe574;
+    --red-color: #e85621;
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+p {
+    font-size: 14px;
+    margin: 5px;
+    line-height: 1.4rem;
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+    text-decoration: underline;
+    color: var(--dark-blue-color);
+    transition: color 0.3s ease;
 }
+
 a:hover {
-  color: #535bf2;
+    color: var(--blue-color);
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+    color: var(--black-color);
+    background-color: var(--grey-color);
+    margin: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h2, h3, .sm-heading {
+    font-weight: bold;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+h2, h3 {
+    margin: 10px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.msg {
+    color: var(--red-color);
+}
+
+.right-text {
+    margin: 0px 0px 10px 10px;
+}
+
+.to-right {
+    align-self: flex-end;
+    margin-right: 15px;
+}
+
+/* Buttons */
+
+.btn-primary {
+    border: none;
+    border-radius: 15px;
+    color: white;
+    background-color: var(--black-color);
+    height: 55px;
+    margin-top: 10px;
+    width: 100%;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #5a5a5a;
+}
+
+.btn-primary.green {
+    background-color: var(--green-color);
+    color: var(--black-color);
+}
+
+.btn-primary.green:hover {
+    background-color: #d3eea1;
+}
+
+.btn-primary.blue {
+    background-color: var(--blue-color);
+    color: var(--black-color);
+}
+
+.btn-primary.blue:hover {
+    background-color: #a9cff4;
+}
+
+/* Components and containers */
+
+.auth-input {
+    border: none;
+    border-radius: 15px;
+    height: 50px;
+    flex: 1;
+    padding-left: 15px;
+    width: 300px;
+}
+
+.auth-input::placeholder {
+    font-size: 14px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 300px;
+    margin-top: 20px;
+}
+
+.hl {
+    flex: 1;
+    height: 2px;
+    width: 2px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.divider p {
+    flex: 1;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border-radius: 15px;
+    background-color: white;
+    max-width: 350px;
+    padding: 10px;
+}
+
+.card.clickable {
+    cursor: pointer;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.icon-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 10px 0px 10px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+}
+
+/* Elements */
+
+.red-circle {
+    position: absolute;
+    top: -6px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--red-color);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.arrow-back {
+    margin-bottom: 10px;
+    cursor: pointer;
 }
