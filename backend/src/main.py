@@ -56,7 +56,7 @@ def login(response: Response,
             "sub": user.id
         })
         refresh_token = au.create_refresh_token(db, user.id)
-        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax")
+        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=30*24*60*60)
         return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
@@ -73,7 +73,7 @@ def refresh_access_token(db: Annotated[Session, Depends(get_session)],
     access_token = au.encode_jwt(payload={
         "sub": token_result
     })
-    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, secure=False, samesite="lax")
+    response.set_cookie(key="refresh_token", value=new_refresh_token, httponly=True, secure=False, samesite="lax", max_age=30*24*60*60)
     return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
 
 @app.post("/auth/log-out")

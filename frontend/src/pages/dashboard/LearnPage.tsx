@@ -13,8 +13,24 @@ const LearnPage = () => {
         learning_xp: null
     })
     const isTLDR = searchParams.get("tldr")
-    const navigate = useNavigate() // <-- later change to clickHandler that will either complete the learning (this should also handle errors and etc, separate func) or navigate()
-    const nextUrl = isTLDR ? "/learn" : "/dashboard" // <-- later change to "finish-page" or smth like this
+    const navigate = useNavigate() 
+    
+    async function handleContinue() {
+        if (isTLDR) {
+            navigate("/learn")
+            return
+        }
+        try {
+            await axiosInstance.post(`/learning/complete/${learnData.id}`)
+            navigate("/done/learn", {state: {xp: learnData.learning_xp}})
+        } catch(error: any) {
+            if (error.response?.status === 400) {
+                navigate("/dashboard")
+            } else {
+                console.error("Learning completition error: ", error)
+            }
+        }
+    }
 
     async function fetchData() {
         const response = await axiosInstance.get("/learning")
@@ -39,9 +55,9 @@ const LearnPage = () => {
                         <p className="right-text">{learnData.tldr}</p>
                     </div>
                 ): (
-                <p style={{maxWidth: 300}}>{learnData.body}</p>
+                <p style={{maxWidth: 350}}>{learnData.body}</p>
                 )}
-                <button className="btn-primary to-bottom" onClick={() => navigate(nextUrl)}>
+                <button className="to-bottom btn-primary" onClick={handleContinue}>
                     Continue
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
                 </button>

@@ -1,21 +1,8 @@
-import { useEffect, useState } from "react";
-import axiosInstance from "../../lib/apiClient";
 import Learn from "../../components/Learn";
 import Streak from "../../components/Streak";
+import Tasks from "../../components/Tasks";
 
 const Dashboard = () => {
-    const [user_xp, setUserXP] = useState(null)
-
-    async function fetchData() {
-        const response = await axiosInstance.get("/users/stats/xp")
-        setUserXP(response.data.xp)
-        return null
-    }
-
-    useEffect(() => {
-        fetchData()
-    }, [])
-
     return (
         <div className="container">
             <div className="col">
@@ -24,6 +11,8 @@ const Dashboard = () => {
                 </div>
                 <h3 style={{marginBottom: 15, marginTop: 0}}>Learn</h3>
                 <Learn />
+                <h3 style={{marginBottom: 15, marginTop: 25}}>Take action today</h3>
+                <Tasks />
             </div>
         </div>
     )

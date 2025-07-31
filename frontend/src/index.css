@@ -57,12 +57,17 @@ footer {
 }
 
 .right-text {
-    margin: 0px 0px 10px 10px;
+    margin-left: 10px;
 }
 
 .to-right {
     align-self: flex-end;
     margin-right: 15px;
+}
+
+.to-bottom {
+    margin-top: auto !important;
+    margin-bottom: 25px;
 }
 
 /* Buttons */
@@ -166,12 +171,11 @@ footer {
     display: flex;
     justify-content: center;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
 }
 
 .icon-row {
     display: flex;
-    gap: 5px;
     align-items: center;
 }
 
@@ -181,9 +185,15 @@ footer {
     margin: 10px 10px 0px 10px;
 }
 
+.col.center {
+    align-items: center;
+    justify-content: center;
+}
+
 .row {
     display: flex;
     align-items: center;
+    gap: 7px;
 }
 
 /* Elements */
@@ -202,4 +212,9 @@ footer {
 .arrow-back {
     margin-bottom: 10px;
     cursor: pointer;
+}
+
+.task-mark {
+    position: absolute;
+    right: 10px;
 }

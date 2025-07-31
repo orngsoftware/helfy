@@ -29,7 +29,7 @@ const Learn = () => {
         <div>
             <div className="card clickable" style={{backgroundColor: "var(--blue-color)"}} 
                 onClick={() => navigate("/learn?tldr=True")}>
-                {userCompleted ? <div className="red-circle"></div> : ""}
+                {!userCompleted ? <div className="red-circle"></div> : ""}
                 <p className="sm-heading right-text" style={{marginTop: 10}}>{learnData.title}</p>
                 <p style={{maxWidth: "90%"}} className="right-text">{learnData.tldr}</p>
                 <div className="to-right">
