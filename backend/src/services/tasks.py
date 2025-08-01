@@ -12,16 +12,34 @@ def user_completed_tasks(user_id) -> Select:
         UserTasks.task_id).where(
         UserTasks.user_id == user_id)
 
-def get_uncompleted_tasks(db: Session, user_id: int, day: int) -> List[Tasks]:
+def get_uncompleted_tasks(db: Session, user_id: int, day: int) -> List[Tasks] | None:
     """Get a list of incompleted tasks for today"""
     tasks = db.execute(select(Tasks).where(
         Tasks.id.not_in(user_completed_tasks(user_id)),
         Tasks.day <= day
     )).scalars().all()
+    if not tasks:
+        return None
+    result = []
+    delayed = False
+    for task in tasks:
+        if task.day < day:
+            delayed = True
+        result.append(
+            {
+                "id": task.id,
+                "name": task.name,
+                "description": task.description,
+                "difficulty": task.difficulty,
+                "xp": task.xp,
+                "delayed_xp": task.delayed_xp,
+                "delayed": delayed
+            }
+        )
 
-    return tasks
+    return result
 
-def get_uncompleted_habits(db: Session, user_id: int) -> List[UserHabits]:
+def get_uncompleted_habits(db: Session, user_id: int) -> List[Tasks]:
     """Get a list of incompleted habits for today"""
     user_habits = select(UserHabits.task_id).where(
         UserHabits.user_id == user_id,
@@ -31,11 +49,11 @@ def get_uncompleted_habits(db: Session, user_id: int) -> List[UserHabits]:
     )).scalars().all()
     return habits
 
-def complete(db: Session, user: Users, task_id: int, completed: bool = True, delayed: bool = False) -> None:
-    """Completes both habits and tasks"""
+def complete(db: Session, user: Users, user_day: int, task_id: int, completed: bool = True) -> None:
+    """Completes and incompletes both habits and tasks"""
     task = db.execute(select(Tasks).where(Tasks.id == task_id)).scalar_one_or_none()
-    xp = task.delayed_xp if delayed else task.xp
-    change_xp_query = change_xp(xp, user.id) if completed else change_xp(xp, user.id, decrease=True)
+    xp = task.delayed_xp if task.day < user_day else task.xp
+    change_xp_query = change_xp(xp, user.id) if completed else change_xp(task.xp, user.id, decrease=True)
     
     if task_id in [habit.id for habit in user.habits]:
         db.execute(update(UserHabits).where(

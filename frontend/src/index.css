@@ -17,6 +17,7 @@ p {
     font-size: 14px;
     margin: 5px;
     line-height: 1.4rem;
+    max-width: 350px;
 }
 
 a {
@@ -68,6 +69,10 @@ footer {
 .to-bottom {
     margin-top: auto !important;
     margin-bottom: 25px;
+}
+
+.hide {
+    display: none;
 }
 
 /* Buttons */
@@ -132,22 +137,6 @@ footer {
     gap: 10px;
     min-width: 300px;
     margin-top: 20px;
-}
-
-.hl {
-    flex: 1;
-    height: 2px;
-    width: 2px;
-}
-
-.divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-}
-
-.divider p {
-    flex: 1;
 }
 
 .card {
@@ -217,4 +206,49 @@ footer {
 .task-mark {
     position: absolute;
     right: 10px;
+}
+
+.outline-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    height: fit-content;
+    min-width: 80px;
+    padding: 0px 2px 0px 2px;
+    border: 2px solid;
+    border-color: var(--black-color);
+}
+
+.outline-box.tab {
+    border-color: var(--dark-green-color);
+    background-color: var(--green-color);
+    color: var(--dark-green-color);
+}
+
+.hl {
+    flex: 1;
+    height: 2px;
+    max-width: 300px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.divider p {
+    flex: 1;
+}
+
+.circle-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--green-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
 }

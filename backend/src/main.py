@@ -105,14 +105,14 @@ def get_tasks(db: Annotated[Session, Depends(get_session)],
     tasks = get_uncompleted_tasks(db, user.id, user_day)
     if not tasks:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No tasks available")
-    return {"ok": True, "tasks": tasks, "user_day": user_day}
+    return {"ok": True, "tasks": tasks}
 
 @app.post("/tasks/complete/{task_id}")
 def complete_task(db: Annotated[Session, Depends(get_session)], 
               user: Annotated[Users, Depends(get_current_user)],
-              task_id: int, delayed: bool = False):
+              task_id: int):
     try:
-        complete(db, user, task_id, delayed=delayed)
+        complete(db, user, days(user.started), task_id)
     except DuplicateError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This task is already completed by the user")
     return {"ok": True, "msg": "Successfully completed the task"}
@@ -122,7 +122,7 @@ def incomplete_task(db: Annotated[Session, Depends(get_session)],
               user: Annotated[Users, Depends(get_current_user)],
               task_id: int):
     try:
-        complete(db, user.id, task_id, completed=False)
+        complete(db, user, days(user.started), task_id, completed=False)
     except DuplicateError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This task is already incompleted by the user")
     return {"ok": True, "msg": "Successfully incompleted the task"}
