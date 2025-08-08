@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, update, Select, delete
-from datetime import date
+from datetime import date, timedelta
 from typing import List
 from ..exceptions import DuplicateError, TimeGapError
 from ..models import Tasks, UserTasks, UserHabits, Users
@@ -16,10 +16,12 @@ def get_uncompleted_tasks(db: Session, user_id: int, day: int) -> List[Tasks] | 
     """Get a list of incompleted tasks for today"""
     tasks = db.execute(select(Tasks).where(
         Tasks.id.not_in(user_completed_tasks(user_id)),
+        Tasks.id.not_in(select(UserHabits.task_id).where(
+            UserHabits.user_id == user_id)),
         Tasks.day <= day
     )).scalars().all()
     if not tasks:
-        return None
+        return []
     result = []
     delayed = False
     for task in tasks:
@@ -55,7 +57,7 @@ def complete(db: Session, user: Users, user_day: int, task_id: int, completed: b
     xp = task.delayed_xp if task.day < user_day else task.xp
     change_xp_query = change_xp(xp, user.id) if completed else change_xp(task.xp, user.id, decrease=True)
     
-    if task_id in [habit.id for habit in user.habits]:
+    if task_id in [habit.task_id for habit in user.habits]:
         db.execute(update(UserHabits).where(
             UserHabits.user_id == user.id,
             UserHabits.task_id == task_id
@@ -91,7 +93,8 @@ def create_habit(db: Session, user_id: int, task_id: int) -> None:
     new_habit = UserHabits(
         user_id=user_id,
         habit_created=date.today(),
-        task_id=task_id
+        task_id=task_id,
+        last_completed=date.today() - timedelta(days = 1)
     )
     db.add(new_habit)
     db.commit()

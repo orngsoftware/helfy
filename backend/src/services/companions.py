@@ -1,7 +1,7 @@
 from math import floor
 from sqlalchemy.orm import Session
-from sqlalchemy import select, insert, update
-from ..models import Companions, Users, Accessories, companion_accessories
+from sqlalchemy import select, insert, update, not_
+from ..models import Companions, Users, Accessories, CompanionAccessories
 from ..exceptions import DuplicateError
 
 def get_companion(user: Users) -> dict | None:
@@ -9,12 +9,13 @@ def get_companion(user: Users) -> dict | None:
     companion = user.companion
     if not companion:
         return None
+
     return {
         "id": companion.id,
         "name": companion.name,
         "stage": companion.stage,
         "type": companion.type,
-        "accessory_ids": [a.id for a in companion.accessories]
+        "accessories": [a.accessory for a in companion.accessories if a.shown == True]
     }
 
 def create_default_companion(db: Session, user_id: int) -> None:
@@ -30,7 +31,7 @@ def create_default_companion(db: Session, user_id: int) -> None:
 
 def get_accessories(db: Session, user: Users):
     """Returns all accessories the user hasn't purchased"""
-    accessory_ids = [a.id for a in user.companion.accessories]
+    accessory_ids = [a.accessory_id for a in user.companion.accessories]
     accessories = db.execute(select(Accessories).where(
         Accessories.id.not_in(accessory_ids))).scalars().all()
 
@@ -38,7 +39,7 @@ def get_accessories(db: Session, user: Users):
 
 def add_accessory(db: Session, user: Users, accessory_id: int) -> None:
     """Adds new accessory to the user companion and subtracts relevant XP from the user"""
-    if accessory_id in [a.id for a in user.companion.accessories]:
+    if accessory_id in [a.accessory_id for a in user.companion.accessories]:
         raise DuplicateError
     
     accessory = db.execute(select(Accessories).where(
@@ -47,15 +48,25 @@ def add_accessory(db: Session, user: Users, accessory_id: int) -> None:
     if accessory.price > user.xp:
         raise ValueError
 
-    db.execute(insert(companion_accessories).values(
+    db.execute(insert(CompanionAccessories).values(
         companion_id=user.companion.id,
-        accessories_id=accessory_id
+        accessory_id=accessory.id,
+        shown=True
     ))
-    db.commit()
     db.execute(update(Users).where(Users.id == user.id).values(
         xp=Users.xp - accessory.price
     ))
+    db.commit()
 
+    return None
+
+def update_accessory_visibility(db: Session, user: Users, accessory_id: int) -> None:
+    db.execute(update(CompanionAccessories).where(
+        CompanionAccessories.companion_id == user.companion.id,
+        CompanionAccessories.accessory_id == accessory_id
+    ).values(shown=not_(CompanionAccessories.shown)))
+
+    db.commit()
     return None
 
 def change_companion_type(db: Session, new_type: str, user_id: int) -> None:

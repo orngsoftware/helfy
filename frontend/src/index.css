@@ -68,11 +68,7 @@ footer {
 
 .to-bottom {
     margin-top: auto !important;
-    margin-bottom: 25px;
-}
-
-.hide {
-    display: none;
+    margin-bottom: 100px;
 }
 
 /* Buttons */
@@ -83,7 +79,6 @@ footer {
     color: white;
     background-color: var(--black-color);
     height: 55px;
-    margin-top: 10px;
     width: 100%;
     font-weight: bold;
     display: flex;
@@ -114,6 +109,24 @@ footer {
 
 .btn-primary.blue:hover {
     background-color: #a9cff4;
+}
+
+.btn-primary.btn-white {
+    background-color: white;
+    color: var(--black-color);
+}
+.btn-primary.btn-white:hover {
+    background-color: #f4f4f4;
+}
+
+.btn-primary.btn-red {
+    background-color: var(--orange-color);
+    border: 2px solid var(--red-color);
+    color: var(--red-color);
+}
+
+.btn-primary.btn-red:hover {
+    background-color: #ff9d33;
 }
 
 /* Components and containers */
@@ -151,7 +164,7 @@ footer {
     padding: 10px;
 }
 
-.card.clickable {
+.clickable {
     cursor: pointer;
 }
 
@@ -171,7 +184,7 @@ footer {
 .col {
     display: flex;
     flex-direction: column;
-    margin: 10px 10px 0px 10px;
+    margin: 10px;
 }
 
 .col.center {
@@ -185,10 +198,18 @@ footer {
     gap: 7px;
 }
 
+.scrollable {
+    max-height: 50%;
+    overflow-y: auto;
+}
+
 /* Elements */
 
-.red-circle {
+.circle {
     position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     top: -6px;
     right: -2px;
     width: 20px;
@@ -213,17 +234,20 @@ footer {
     justify-content: center;
     align-items: center;
     border-radius: 15px;
+    border: 2px solid var(--black-color);
     height: fit-content;
     min-width: 80px;
     padding: 0px 2px 0px 2px;
-    border: 2px solid;
-    border-color: var(--black-color);
+}
+
+.outline-box.tab-active {
+    border: 2px solid var(--dark-green-color);
+    background-color: var(--green-color);
+    color: var(--dark-green-color);
 }
 
 .outline-box.tab {
-    border-color: var(--dark-green-color);
-    background-color: var(--green-color);
-    color: var(--dark-green-color);
+    border: none;
 }
 
 .hl {
@@ -252,3 +276,115 @@ footer {
     height: 50px;
     cursor: pointer;
 }
+
+.card.popup {
+    position: fixed;
+    align-items: center;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.container.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    overflow-y: auto;
+}
+
+.progress-bar {
+    border-radius: 15px;
+    width: 100%;
+    height: 20px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+}
+
+.bar-shine {
+   width: 90%;
+   height: 20%;
+   border-radius: 15px;
+   background-color: #75bcff;
+   align-self: flex-start;
+   margin: 4px 5px 0px 4px
+}
+
+.card.popup.store {
+    top: 75%;
+    border: 2px solid var(--dark-grey-color);
+    width: 90%;
+    align-items: flex-start;
+}
+
+.companion {
+    position: relative;
+    margin-bottom: 10px;
+    width: 300px;
+    height: 300px;
+}
+
+.companion-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 300px;
+    z-index: 2;
+}
+
+.companion-base {
+    z-index: 1;
+    width: 300px;
+    height: 300px;
+}
+
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 100px;
+    height: 70px;
+    background-color: white;
+    border-top: 2px solid var(--dark-grey-color);
+    align-self: center;
+    position: fixed;
+    bottom: 0;
+}
+
+.loader {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 32px 0 #fff, -32px 0 #fff;
+  position: relative;
+  animation: flash 0.5s ease-out infinite alternate;
+}
+
+@keyframes flash {
+  0% {
+    background-color: #FFF2;
+    box-shadow: 32px 0 #FFF2, -32px 0 #FFF;
+  }
+  50% {
+    background-color: #FFF;
+    box-shadow: 32px 0 #FFF2, -32px 0 #FFF2;
+  }
+  100% {
+    background-color: #FFF2;
+    box-shadow: 32px 0 #FFF, -32px 0 #FFF2;
+  }
+}
+      

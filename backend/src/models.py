@@ -1,6 +1,6 @@
 from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, Table, Column
+from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, CIDR, BYTEA
 import uuid
 from datetime import date, datetime, timedelta
@@ -23,12 +23,14 @@ class UserCompletedLearnings(Base):
     user: Mapped["Users"] = relationship(back_populates="completed_learnings")
     learning: Mapped["Learnings"] = relationship()
 
-companion_accessories = Table(
-    "companion_accessories",
-    Base.metadata,
-    Column("companion_id", ForeignKey("companions.id"), primary_key=True),
-    Column("accessories_id", ForeignKey("accessories.id"), primary_key=True)
-)
+class CompanionAccessories(Base):
+    __tablename__ = "companion_accessories"
+    companion_id: Mapped[int] = mapped_column(ForeignKey("companions.id"), primary_key=True)
+    accessory_id: Mapped[int] = mapped_column(ForeignKey("accessories.id"), primary_key=True)
+    shown: Mapped[bool]
+
+    companion: Mapped["Companions"] = relationship(back_populates="accessories")
+    accessory: Mapped["Accessories"] = relationship(back_populates="accessory_companions")
 
 class Users(Base):
     __tablename__="users"
@@ -95,7 +97,7 @@ class Companions(Base):
     stage: Mapped[int] = mapped_column(default=1)
     type: Mapped[str] = mapped_column(default="plant")
 
-    accessories: Mapped[List["Accessories"]] = relationship(secondary=companion_accessories)
+    accessories: Mapped[List["CompanionAccessories"]] = relationship(back_populates="companion")
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["Users"] = relationship(back_populates="companion")
@@ -105,3 +107,6 @@ class Accessories(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     price: Mapped[int]
+    level: Mapped[int] = mapped_column(nullable=True)
+
+    accessory_companions: Mapped[List["CompanionAccessories"]] = relationship(back_populates="accessory")

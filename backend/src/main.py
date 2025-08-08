@@ -4,7 +4,7 @@ from .models import Users
 from .services.users import create_user, get_user, days, calculate_streak
 from .services.tasks import get_uncompleted_tasks, complete, create_habit, create_habits_auto, get_uncompleted_habits, remove_habit
 from .services.learnings import get_learning_day, learning_complete, get_learning_short
-from .services.companions import get_companion, get_accessories, add_accessory, change_companion_type, change_companion_name
+from .services.companions import get_companion, get_accessories, add_accessory, change_companion_type, change_companion_name, update_accessory_visibility
 from .auth import utils as au
 from .exceptions import DuplicateError, TimeGapError
 from .dependecies import get_current_user
@@ -64,6 +64,7 @@ def login(response: Response,
 def refresh_access_token(db: Annotated[Session, Depends(get_session)], 
                          response: Response, 
                          refresh_token: UUID = Cookie(None)):
+    print(f"Here is the token sent by client {refresh_token}")
     token_result = au.is_valid_refresh_token(db, refresh_token)
     if token_result == False:
         response.delete_cookie("refresh_token")
@@ -103,8 +104,6 @@ def get_tasks(db: Annotated[Session, Depends(get_session)],
               user: Annotated[Users, Depends(get_current_user)]):
     user_day = days(user.started)
     tasks = get_uncompleted_tasks(db, user.id, user_day)
-    if not tasks:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No tasks available")
     return {"ok": True, "tasks": tasks}
 
 @app.post("/tasks/complete/{task_id}")
@@ -185,8 +184,12 @@ def companion(user: Annotated[Users, Depends(get_current_user)]):
 
 @app.get("/companion/accessories")
 def accessories(db: Annotated[Session, Depends(get_session)], 
-              user: Annotated[Users, Depends(get_current_user)]):
-    return {"ok": True, "accessories": get_accessories(db, user)}
+              user: Annotated[Users, Depends(get_current_user)], inventory: bool | None = None):
+    if inventory:
+        accessories = user.companion.accessories
+    else:
+        accessories = get_accessories(db, user)
+    return {"ok": True, "accessories": accessories}
 
 @app.post("/companion/accessories/buy/{accessory_id}")
 def buy_accessory(db: Annotated[Session, Depends(get_session)], 
@@ -213,3 +216,10 @@ def change_name(db: Annotated[Session, Depends(get_session)],
                 new_name: str):
     change_companion_name(db, new_name, user.id)
     return {"ok": True, "msg": f"Successfully change companion name to {new_name}"}
+
+@app.patch("/companion/accessories/toggle/{accessory_id}")
+def toggle_visibility(db: Annotated[Session, Depends(get_session)], 
+                  user: Annotated[Users, Depends(get_current_user)], 
+                  accessory_id: int):
+    update_accessory_visibility(db, user, accessory_id)
+    return {"ok": True, "msg": "Successfully changed visibility of the accessory"}

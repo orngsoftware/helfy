@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import axiosInstance from "../../lib/apiClient"
+import Loading from "../../components/Loading"
 
 const LearnPage = () => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -13,6 +14,7 @@ const LearnPage = () => {
         learning_xp: null
     })
     const isTLDR = searchParams.get("tldr")
+    const [isLoading, setLoading] = useState(true)
     const navigate = useNavigate() 
     
     async function handleContinue() {
@@ -33,8 +35,15 @@ const LearnPage = () => {
     }
 
     async function fetchData() {
-        const response = await axiosInstance.get("/learning")
-        setLearnData(response.data.learning)
+        setLoading(true)
+        try {
+            const response = await axiosInstance.get("/learning")
+            setLearnData(response.data.learning)
+        } catch(error: any) {
+            console.log("Error fetching learn data: ", error)
+        } finally {
+            setLoading(false)
+        }
         return;
     }
 
@@ -42,7 +51,9 @@ const LearnPage = () => {
         fetchData()
     }, [])
 
-    return (
+    return isLoading ? (
+        <Loading />
+    ) : (
         <div className="container">
             <div className="col">
                 <div className="arrow-back" onClick={() => navigate(-1)}>
@@ -55,7 +66,7 @@ const LearnPage = () => {
                         <p className="right-text">{learnData.tldr}</p>
                     </div>
                 ): (
-                <p>{learnData.body}</p>
+                <p style={{maxWidth: 350}}>{learnData.body}</p>
                 )}
                 <button className="to-bottom btn-primary" onClick={handleContinue}>
                     Continue

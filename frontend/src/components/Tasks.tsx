@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react"
-import axiosInstance from "../lib/apiClient"
 import { useNavigate } from "react-router-dom"
 import { TickIcon } from "./Icons"
 
@@ -11,23 +9,11 @@ export function difficultyColor(difficulty: number): string {
         } 
         return "var(--dark-yellow-color)"
 }
-
-const Tasks = () => {
-    const [tasksData, setTasksData] = useState([])
+const Tasks = ({ tasksData }: { tasksData: any}) => {
     const navigate = useNavigate()
 
-    async function fetchData() {
-        const response = await axiosInstance.get("/tasks")
-        setTasksData(response.data.tasks)
-        return;
-    }
-
-    useEffect(() => {
-        fetchData()
-    }, [])
-
     return (
-        <div className="col center" style={{gap: 15}}>
+        <div className="col center" style={{gap: 15, marginBottom: 100}}>
             {tasksData.length === 0 ? (
                 <p className="sm-heading">No more tasks for today</p>
             ) : (

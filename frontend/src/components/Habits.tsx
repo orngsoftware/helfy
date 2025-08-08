@@ -1,30 +1,17 @@
 import { useNavigate } from "react-router-dom"
-import axiosInstance from "../lib/apiClient"
-import { useEffect, useState } from "react"
 import { difficultyColor } from "./Tasks"
 import { RepeatIcon } from "./Icons"
 
-const Habits = () => {
-    const [habitsData, setHabitsData] = useState([])
+const Habits = ({ habitsData }: { habitsData: any}) => {
     const navigate = useNavigate()
 
-    async function fetchData() {
-        const response = await axiosInstance.get("/tasks/habits")
-        setHabitsData(response.data.habits)
-        return;
-    }
-
-    useEffect(() => {
-        fetchData()
-    }, [])
-
     return (
-        <div className="col center" style={{gap: 15}}>
+        <div className="col center" style={{gap: 15, marginBottom: 100}}>
             {habitsData.length === 0 ? (
                 <p className="sm-heading">No more habits for today</p>
             ) : (
                 habitsData.map((habit: any) => (
-                    <div className="card clickable" onClick={() => navigate("/habit", {state: habit})} style={{width: "100%", backgroundColor: "var(--yellow-color)"}}>
+                    <div className="card clickable" onClick={() => navigate("/habit", {state: habit})} style={{width: "100%", backgroundColor: "var(--yellow-color)", border: "2px solid var(--dark-yellow-color)"}}>
                         <div className="task-mark icon-row">
                             <RepeatIcon color="var(--dark-yellow-color)" width="20" height="20" />
                             <p style={{color: "var(--dark-yellow-color)"}}>Habit</p>
