@@ -16,7 +16,8 @@ def create_user(db: Session, user_data: UserSchema) -> bool:
     user = Users(
         email=user_data.email,
         password=hash_password(user_data.password),
-        started=today
+        started=today,
+        auth_provider="local"
     )
     db.add(user)
     db.commit()

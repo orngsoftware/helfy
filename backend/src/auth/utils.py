@@ -1,7 +1,9 @@
 import jwt
 import bcrypt
-import uuid
+import hashlib
+import secrets
 from datetime import timedelta, datetime, timezone
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 from ..models import RefreshSessions
@@ -47,38 +49,37 @@ def validate_password(hashed_password: bytes, password: str) -> bool:
 def is_expired(expire_at: datetime):
     return expire_at.replace(tzinfo=timezone.utc) < now
 
+def hash_token(token_raw: str):
+    return hashlib.sha256(token_raw.encode()).hexdigest()
+
 def create_refresh_token(db: Session, 
-                         user_id: int, 
-                         ip_address: str = "127.0.0.1",  # <-- for testing purposes, no NGINX
+                         user_id: int,
                          expire_timedelta: timedelta | None = None, 
-                         expire_days: int = settings.refresh_token_exp) -> uuid.UUID:
+                         expire_days: int = settings.refresh_token_exp) -> str:
     """Creates and adds new refresh token to refresh_sessions table"""
-    refresh_token = uuid.uuid4()
+    refresh_token = secrets.token_urlsafe(64)
     
     new_token =  RefreshSessions(
-        refresh_token=refresh_token,
+        refresh_token=hash_token(refresh_token),
         user_id=user_id,
         expires_at=now + (expire_timedelta or timedelta(days=expire_days)),
-        created_at=now,
-        ip_address=ip_address
+        created_at=now
     )
     db.add(new_token)
     db.commit()
     return refresh_token
 
-def is_valid_refresh_token(db: Session, refresh_token: uuid.UUID) -> bool | int:
-    """Returns user id if token is valid and deletes old one"""
-    token = db.execute(select(RefreshSessions).where(RefreshSessions.refresh_token == refresh_token)).scalar_one_or_none()
-    delete_query = delete(RefreshSessions).where(RefreshSessions.refresh_token == refresh_token)
+def is_valid_refresh_token(db: Session, refresh_token: str) -> bool | int:
+    input_hash = hash_token(refresh_token)
+    token = db.execute(select(RefreshSessions).where(RefreshSessions.refresh_token == input_hash)).scalar_one_or_none()
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
     
-    if not token:
-        return False
     if is_expired(token.expires_at):
-        db.execute(delete_query)
+        db.execute(delete(RefreshSessions).where(RefreshSessions.id == token.id))
         db.commit()
-        return False
-    
-    # When NGINX setup is done check IPs or Fingerprints.
-    db.execute(delete_query)
-    db.commit()
+        raise HTTPException(status_code=401, detail="Refresh token expired")
+
+    db.execute(delete(RefreshSessions).where(RefreshSessions.id == token.id))
     return token.user_id

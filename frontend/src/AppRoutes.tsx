@@ -10,6 +10,7 @@ import CompanionPage from './pages/CompanionPage'
 import DashboardLayout from './pages/dashboard/DashboardLayout'
 import NotFound from './pages/NotFound'
 import LandingPage from './pages/Landing'
+import AuthGoogle from './pages/AuthGoogle'
 
 const AppRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AppRoutes = () => {
           <Route path='/habit' element={<HabitPage />} />
           <Route path='/dashboard/companion' element={<CompanionPage />} />
         </Route>
+        <Route path='/auth/google' element={<AuthGoogle />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
   )

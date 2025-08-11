@@ -48,12 +48,15 @@ const Dashboard = () => {
         <Loading />
     ) : (
         <div className="container">
-            <div className="col" style={{marginRight: 10, marginLeft: 10, marginTop: 10}}>
+            <div className="col" style={{marginTop: 10}}>
                 <div className="to-right" style={{marginRight: 15}}>
                     <Streak size="14" />
                 </div>
                 <h3 style={{marginBottom: 15, marginTop: 0}}>Learn</h3>
-                <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
+                <div className="col center" style={{margin: 0}}>
+                    <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
+                </div>
+                
                 <h3 style={{marginBottom: 15, marginTop: 25}}>Take action today</h3>
                 <div className="row" style={{marginBottom: 15, gap: 25}}>
                     <motion.div whileTap={{scale: 0.9}} 

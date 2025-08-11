@@ -1,7 +1,7 @@
 import axios from "axios";
 import { clearAccessToken, getAccessToken, setAccessToken } from "./tokenManager";
 
-const authAxios= axios.create({
+export const authAxios= axios.create({
     baseURL: "http://localhost:8000",
     headers: {
         'Content-Type': 'application/json',

@@ -4,20 +4,6 @@ from sqlalchemy import select, insert, update, not_
 from ..models import Companions, Users, Accessories, CompanionAccessories
 from ..exceptions import DuplicateError
 
-def get_companion(user: Users) -> dict | None:
-    """Returns a user companion with accessories he has"""
-    companion = user.companion
-    if not companion:
-        return None
-
-    return {
-        "id": companion.id,
-        "name": companion.name,
-        "stage": companion.stage,
-        "type": companion.type,
-        "accessories": [a.accessory for a in companion.accessories if a.shown == True]
-    }
-
 def create_default_companion(db: Session, user_id: int) -> None:
     """Create new default companion for the user"""
     result = db.execute(select(Companions.id).where(

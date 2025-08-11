@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../../lib/apiClient";
 import Divider from "../../components/Divider";
+import { setAccessToken } from "../../lib/tokenManager";
 
 
 export default function SignUpForm () {
@@ -25,11 +26,10 @@ export default function SignUpForm () {
             const response = await axiosInstance.post("/auth/sign-up", formData)
             const result = await response.data;
             setMessage(result.msg);
+            setAccessToken(result.token.access_token)
+            navigate("/dashboard")
 
-            if (response.status === 200) {
-                navigate("/log-in") // in the future automatically log in user
-            }
-        } catch(error) {
+        } catch(error: any) {
             setMessage("500, Error connecting to the server")
         }
     }

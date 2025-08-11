@@ -1,8 +1,7 @@
 from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import UUID, CIDR, BYTEA
-import uuid
+from sqlalchemy.dialects.postgresql import BYTEA
 from datetime import date, datetime, timedelta
 from typing import List
 
@@ -37,6 +36,7 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str]
     password: Mapped[bytes] = mapped_column(BYTEA)
+    auth_provider: Mapped[str] = mapped_column(default="local", nullable=True)
     started: Mapped[date]
     last_completed: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
     last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
@@ -52,11 +52,10 @@ class Users(Base):
 class RefreshSessions(Base):
     __tablename__="refresh_sessions"
     id: Mapped[int] = mapped_column(primary_key=True)
-    refresh_token: Mapped[uuid.UUID] = mapped_column(UUID)
+    refresh_token: Mapped[str] = mapped_column(index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     expires_at: Mapped[datetime]
     created_at: Mapped[datetime]
-    ip_address: Mapped[str] = mapped_column(CIDR)
 
 class UserHabits(Base):
     __tablename__="user_habits"

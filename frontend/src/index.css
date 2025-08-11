@@ -22,12 +22,12 @@ p {
 
 a {
     text-decoration: underline;
-    color: var(--dark-blue-color);
+    color: var(--dark-green-color);
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: var(--blue-color);
+    color: #8cca1a;
 }
 
 body {
@@ -45,12 +45,15 @@ h2, h3 {
 }
 
 footer {
-    position: fixed;
+    display: flex;
     left: 0;
     bottom: 0;
-    text-align: center;
+    gap: 10px;
+    align-items: center;
+    flex-direction: column;
+    padding-bottom: 50px;
+    margin-top: 50px;
     width: 100%;
-    margin-bottom: 50px;
 }
 
 .msg {
@@ -64,6 +67,10 @@ footer {
 .to-right {
     align-self: flex-end;
     margin-right: 15px;
+}
+
+.to-left {
+    align-self: flex-start;
 }
 
 .to-bottom {
@@ -129,6 +136,16 @@ footer {
     background-color: #ff9d33;
 }
 
+.btn-outline {
+    border: 2px solid var(--black-color);
+    background-color: transparent;
+    color: var(--black-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--dark-grey-color);
+}
+
 /* Components and containers */
 
 .auth-input {
@@ -192,10 +209,23 @@ footer {
     justify-content: center;
 }
 
+.col.center-align {
+    align-items: center;
+}
+
 .row {
     display: flex;
     align-items: center;
     gap: 7px;
+}
+
+.row-landing {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .scrollable {
@@ -275,6 +305,12 @@ footer {
     width: 50px;
     height: 50px;
     cursor: pointer;
+}
+
+.card.landing-feature {
+    max-width: 250px;
+    padding-bottom: 30px;
+    padding-left: 20px;
 }
 
 .card.popup {
@@ -361,6 +397,17 @@ footer {
     align-self: center;
     position: fixed;
     bottom: 0;
+}
+
+.card.landing-demo {
+    padding: 25px;
+    max-width: 350px;
+}
+
+.landing-img {
+    max-width: 300px;
+    border-radius: 15px;
+    border: 2px solid var(--dark-grey-color);
 }
 
 .loader {

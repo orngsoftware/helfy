@@ -14,8 +14,7 @@ const CompanionPage = () => {
         learning_xp: 0,
         streak: 0,
         status: "lost",
-        stage: 0,
-        inventoryItems: []
+        stage: 0
     })
     const [isStoreOpen, setOpen] = useState(false)
     const [isInventoryOpen, setInventoryOpen] = useState(false)
@@ -44,11 +43,10 @@ const CompanionPage = () => {
                 learning_xp: learningXPResponse.data.xp,
                 streak: streakResponse.data.result.streak,
                 status: streakResponse.data.result.status,
-                stage: companionResponse.data.companion.stage,
-                inventoryItems: inventoryResponse.data.accessories
+                stage: companionResponse.data.companion.stage
             })
             setCompanionType(companionResponse.data.companion.type)
-            setAccessories(companionResponse.data.companion.accessories)
+            setAccessories(inventoryResponse.data.accessories)
             setStoreItems(storeResponse.data.accessories)
         } catch(error: any) {
             console.error("Error fetching stats: ", error)
@@ -59,9 +57,23 @@ const CompanionPage = () => {
     }
 
     const handleBuy = (itemID: number) => {
-        setStoreItems(prev => prev.filter((i:any) => i.id !== itemID))
-        setAccessories(prev => prev.filter((i:any) => i.id !== itemID))
-    }
+        setStoreItems(prev => prev.filter((i: any) => i.id !== itemID));
+
+        setAccessories(prev => [
+            ...prev,
+            { accessory_id: itemID, shown: true }
+        ]);
+    };
+
+    const handleToggleAccessory = (id: number) => {
+        setAccessories(prev =>
+            prev.map((acc: any) =>
+                acc.accessory_id === id
+                ? { ...acc, shown: !acc.shown }
+                : acc
+        )
+        );
+    };
 
     async function changeCompanionType() {
         try {
@@ -92,7 +104,7 @@ const CompanionPage = () => {
         <Loading />
     ) : (
         <div className="container">
-            <div className="col" style={{alignItems: "center", gap: 10, marginTop: 10}}>
+            <div className="col center-align" style={{gap: 10}}>
                 <div className="row">
                     <StatsCard bgColor="var(--yellow-color)" 
                                 color="var(--dark-yellow-color)" 
@@ -180,9 +192,9 @@ const CompanionPage = () => {
                         }}
                     >
                     <InventoryPopUp 
-                        items={data.inventoryItems} 
+                        items={accessories} 
                         closePopUp={() => setInventoryOpen(false)}
-                        onChange={handleBuy} 
+                        onChange={handleToggleAccessory} 
                     />
                     </motion.div>
                 )}

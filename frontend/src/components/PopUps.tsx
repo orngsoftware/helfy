@@ -58,21 +58,16 @@ export const StorePopUp = (props: any) => {
         </div>)
 }
 
-export const InventoryPopUp = (props: any) => {
-    const { closePopUp, items, onChange } = props
-    const [inventory, setInventory] = useState(items)
+export const InventoryPopUp = ({ closePopUp, items, onChange }: any) => {
 
     async function changeVisibility(item: any) {
         try {
-            await axiosInstance.patch(`/companion/accessories/toggle/${item.accessory_id}`)
-            setInventory((prevItems: any) => prevItems.map(
-                (i: any) => i.accessory_id === item.accessory_id ? {...i, shown: !i.shown} : i))
-            onChange(item.accessory_id)
-        } catch(error: any) {
-            console.log("Error toggling item visibility: ", error)
+            await axiosInstance.patch(`/companion/accessories/toggle/${item.accessory_id}`);
+            onChange(item.accessory_id);
+        } catch (error: any) {
+            console.log("Error toggling item visibility: ", error);
         }
-        return;
-    }
+  }
 
     return (
         <div className="container">
@@ -80,10 +75,10 @@ export const InventoryPopUp = (props: any) => {
                 <p className="sm-heading">Inventory</p>
                 <div><svg className="close-icon clickable" onClick={closePopUp} xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--black-color)" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg></div>
                 <div className="row" style={{maxWidth: "95%", overflowX: "auto"}}>
-                    {inventory.length === 0 ? (
+                    {items.length === 0 ? (
                         <p>You don't have any items</p>
                     ) : (
-                        inventory.map((item: any) =>  (
+                        items.map((item: any) =>  (
                         <div className="card clickable" onClick={() => changeVisibility(item)} style={{border: item.shown ? "3px solid var(--dark-blue-color)" : "2px solid var(--dark-grey-color)", alignItems: "center"}}>
                             {item.shown ? (
                                 <div className="circle" style={{backgroundColor: "var(--dark-blue-color)"}}>

@@ -5,7 +5,9 @@ const Companion = ({ stage, type, accessories }: {stage: number, type: string, a
         <div className="col center">
             <div className="companion">
                 {accessories.map((item: any) => (
-                    <img className="companion-element" style={{zIndex: item.level}} src={`/src/assets/accessories/${item.id}.svg`}/>
+                    item.shown ?
+                    <img className="companion-element" style={{zIndex: item.level}} src={`/src/assets/accessories/${item.accessory_id}.svg`}/>
+                    : ""
                 ))}
                 <img className="companion-base" src={`/src/assets/companions/${type}${stage}.svg`}/>
             </div>

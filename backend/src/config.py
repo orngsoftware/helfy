@@ -16,7 +16,10 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str
     access_token_exp: int = 30
-    refresh_token_exp: int = 60
+    refresh_token_exp: int = 20
+
+    oauth_google_client_id: str
+    oauth_google_client_secret: str
     
 @lru_cache
 def get_settings():
