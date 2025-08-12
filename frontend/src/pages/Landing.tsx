@@ -57,25 +57,25 @@ const LandingPage = () => {
             <div className="col center-align" style={{gap: 25}}>
                 <div className="row to-left">
                     <Link to="/">
-                        <img src="./src/assets/helfy_logo_v1.svg" alt="Helfy Logo" style={{height: 100}}/>
+                        <img src="/assets/helfy_logo_v1.svg" alt="Helfy Logo" style={{height: 100}}/>
                     </Link>
                     <p style={{color: "var(--red-color)"}}>Beta v0.1</p>
                 </div>
                 <div className="col center-align" style={{textAlign: "center"}}>
                     <h1 style={{marginBottom: 10, marginTop: 0}}>improve your nutrition <WordSwitcher words={words} interval={1000} color="var(--dark-green-color)" />.</h1>
                     <p>Free, fun and gamified app to improve your nutrition</p>
-                    <div className="row" style={{width: 200, marginTop: 15}}>
-                        <button style={{height: 45}} className="btn-primary btn-outline" onClick={() => navigate("/log-in")}>Log in</button>
-                        <button style={{height: 45}} className="btn-primary" onClick={() => navigate("/sign-up")}>Get started</button>
+                    <div className="col" style={{gap: 10}}>
+                        <button style={{height: 45, width: 250}} className="btn-primary" onClick={() => navigate("/sign-up")}>Get started</button>
+                        <button style={{height: 45, width: 250}} className="btn-primary btn-outline" onClick={() => navigate("/dashboard")}>I have an account already</button>
                     </div>
                 </div>
                 <div className="row-landing">
                     <div className="card landing-demo" 
                         style={{backgroundColor: "var(--green-color)", border: "2px solid var(--dark-green-color)"}}>
-                        <img className="landing-img" src="./src/assets/demo-plant.png" alt="Plant (companion) page demo" />
+                        <img className="landing-img" src="/assets/demo-plant.png" alt="Plant (companion) page demo" />
                     </div>
                     <div className="card landing-demo">
-                        <img className="landing-img" style={{maxWidth: 235}} src="./src/assets/demo-dashboard.png" alt="Dashboard page demo" />
+                        <img className="landing-img" style={{maxWidth: 235}} src="/assets/demo-dashboard.png" alt="Dashboard page demo" />
                     </div>
                 </div>
                 <div className="col center-align" style={{textAlign: "center"}}>

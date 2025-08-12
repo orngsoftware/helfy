@@ -10,8 +10,7 @@ from .auth.oauth_google import generate_google_auth_redirect_uri, handle_code
 from .exceptions import DuplicateError, TimeGapError
 from .dependecies import get_current_user
 from sqlalchemy.orm import Session
-from uuid import UUID
-from fastapi import FastAPI, Depends, HTTPException, Response, Cookie, status, Body
+from fastapi import FastAPI, Depends, HTTPException, Response, Cookie, status
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
@@ -26,7 +25,8 @@ origins = [
     "http://localhost:5173",
     "http://localhost:3000",
     "http://localhost:80",
-    "http://localhost:443"
+    "http://localhost:443",
+    "http://localhost"
 ]
 
 app.add_middleware(

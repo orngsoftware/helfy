@@ -5,7 +5,7 @@ import { setAccessToken } from '../../lib/tokenManager';
 import Divider from '../../components/Divider';
 
 export function continueWithGoogle() {
-    window.location.href = 'http://localhost:8000/auth/google/url'
+    window.location.href = 'http://localhost:8000/auth/google/url' // <-- Change on production to https://server_name/auth/google/url
 }
 
 export default function LogInForm () {
@@ -16,7 +16,6 @@ export default function LogInForm () {
     const [message, setMessage] = useState("");
 
     const [type, setType] = useState('password');
-    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate()
 
     function handleChange(e: any) {
@@ -26,7 +25,6 @@ export default function LogInForm () {
 
     async function handleSubmit(e: any) {
         e.preventDefault();
-        setIsLoading(true);
         setMessage("");
         
         try {
@@ -46,8 +44,6 @@ export default function LogInForm () {
             } else {
                 setMessage("500, Error connecting to the server");
             }
-        } finally {
-            setIsLoading(false);
         }
     }
 
