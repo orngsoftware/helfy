@@ -11,6 +11,8 @@ import DashboardLayout from './pages/dashboard/DashboardLayout'
 import NotFound from './pages/NotFound'
 import LandingPage from './pages/Landing'
 import AuthGoogle from './pages/AuthGoogle'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 
 const AppRoutes = () => {
   return (
@@ -18,6 +20,8 @@ const AppRoutes = () => {
         <Route path='/' element={<LandingPage />} />
         <Route path='/log-in' element={<LogInForm />} />
         <Route path='/sign-up' element={<SignUpForm />} />
+        <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+        <Route path='/terms-of-service' element={<TermsOfService />} />
         <Route element={<DashboardLayout />} >
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/learn' element={<LearnPage />} />

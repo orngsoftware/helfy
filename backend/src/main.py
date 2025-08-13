@@ -66,7 +66,12 @@ def login(response: Response,
             "sub": user.id
         })
         refresh_token = au.create_refresh_token(db, user.id)
-        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=30*24*60*60)
+        response.set_cookie(key="refresh_token", 
+                            value=refresh_token, 
+                            httponly=True, 
+                            secure=False, 
+                            samesite="lax",
+                            max_age=30*24*60*60)
         return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
@@ -77,17 +82,16 @@ def refresh_access_token(db: Annotated[Session, Depends(get_session)],
     if not refresh_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token")
     try:
-        user_id = au.is_valid_refresh_token(db, refresh_token)
+        validation_result = au.is_valid_refresh_token(db, refresh_token)
     except HTTPException:
         response.delete_cookie("refresh_token")
         raise
     
-    new_refresh_token = au.create_refresh_token(db, user_id=user_id)
     access_token = au.encode_jwt(payload={
-        "sub": user_id
+        "sub": validation_result[0]
     })
     response.set_cookie(key="refresh_token", 
-                        value=new_refresh_token, 
+                        value=validation_result[1], 
                         httponly=True, 
                         secure=False, 
                         samesite="lax", 
@@ -101,7 +105,7 @@ def logout(db: Annotated[Session, Depends(get_session)],
     if not refresh_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token")
     try:
-        token_result = au.is_valid_refresh_token(db, refresh_token)
+        au.remove_refresh_session(db, refresh_token)
     except HTTPException:
         response.delete_cookie("refresh_token")
         raise

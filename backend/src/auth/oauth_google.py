@@ -8,10 +8,9 @@ settings = get_settings()
 def generate_google_auth_redirect_uri():
     query_params = {
         "client_id": settings.oauth_google_client_id,
-        "redirect_uri": "http://localhost:5173/auth/google",
+        "redirect_uri": "https://helfy.space/auth/google",
         "response_type": "code",
         "scope": " ".join(["openid", "email", "profile"])
-        # state: ...
     }
 
     query_string = urllib.parse.urlencode(query_params, quote_via=urllib.parse.quote)
@@ -26,7 +25,7 @@ def handle_code(code: str, key: str | None = None):
             "client_id": settings.oauth_google_client_id,
             "client_secret": settings.oauth_google_client_secret,
             "grant_type": "authorization_code",
-            "redirect_uri": "http://localhost:5173/auth/google",
+            "redirect_uri": "https://helfy.space/auth/google",
             "code": code
     })
 

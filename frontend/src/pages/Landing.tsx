@@ -34,13 +34,15 @@ const WordSwitcher = (props: any) => {
     )
 }
 
-const LandingFooter = () => {
+export const LandingFooter = () => {
     return (
         <footer>
             <div className="row" style={{gap: 20}}>
                 <Link to="/sign-up">Sign up</Link>
                 <Link to="/log-in">Log in</Link>
                 <Link to="/">Home Page</Link>
+                <Link to="/privacy-policy">Privacy policy</Link>
+                <Link to="/terms-of-service">Terms of service</Link>
                 <Link to="mailto: while.no.helf@gmail.com">Contact Us</Link>
             </div>
             <p>© 2025 Helfy. All rights reserved</p>

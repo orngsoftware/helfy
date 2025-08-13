@@ -5,7 +5,7 @@ import secrets
 from datetime import timedelta, datetime, timezone
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from ..models import RefreshSessions
 from typing import Any
 from ..config import get_settings
@@ -69,7 +69,7 @@ def create_refresh_token(db: Session,
     db.commit()
     return refresh_token
 
-def is_valid_refresh_token(db: Session, refresh_token: str) -> bool | int:
+def is_valid_refresh_token(db: Session, refresh_token: str) -> tuple:
     input_hash = hash_token(refresh_token)
     token = db.execute(select(RefreshSessions).where(RefreshSessions.refresh_token == input_hash)).scalar_one_or_none()
 
@@ -81,5 +81,19 @@ def is_valid_refresh_token(db: Session, refresh_token: str) -> bool | int:
         db.commit()
         raise HTTPException(status_code=401, detail="Refresh token expired")
 
+    new_refresh_token = secrets.token_urlsafe(64)
+    db.execute(update(RefreshSessions).where(RefreshSessions.id == token.id).values(
+        refresh_token = hash_token(new_refresh_token)
+    ))
+    db.commit()
+    return (token.user_id, new_refresh_token)
+
+def remove_refresh_session(db: Session, refresh_token: str) -> None:
+    input_hash = hash_token(refresh_token)
+    token = db.execute(select(RefreshSessions).where(RefreshSessions.refresh_token == input_hash)).scalar_one_or_none()
+
+    if token is None:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
     db.execute(delete(RefreshSessions).where(RefreshSessions.id == token.id))
-    return token.user_id
+    db.commit()
+    return None
