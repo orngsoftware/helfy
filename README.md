@@ -1,0 +1,2 @@
+## Helfy
+> A gamified web app that helps individuals improve their health by completing daily actions and habits, and acquiring small amounts of essential knowledge, while growing a personalised visual companion that reflects their progress.
