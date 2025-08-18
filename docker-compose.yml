@@ -1,6 +1,13 @@
 networks:
   net:
 services:
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks:
+      - net
   nginx:
     build:
       context: ./frontend
@@ -9,14 +16,15 @@ services:
       - "443:443"
     depends_on:
       - backend
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
     networks:
       - net
   backend:
     container_name: backend
     build:
       context: ./backend
-    volumes: #this should be removed on production
-      - ./backend:/app
     networks:
       - net
   database:
@@ -33,3 +41,5 @@ services:
 
 volumes:
   pg_data:
+  certbot_conf:
+  certbot_www:

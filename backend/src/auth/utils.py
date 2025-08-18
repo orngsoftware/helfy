@@ -11,7 +11,8 @@ from typing import Any
 from ..config import get_settings
 
 settings = get_settings()
-now = datetime.now(timezone.utc)
+def utcnow():
+    return datetime.now(timezone.utc)
 
 def encode_jwt(payload: dict[str, Any], 
                key: str = settings.secret_key, 
@@ -22,9 +23,9 @@ def encode_jwt(payload: dict[str, Any],
     to_encode = payload.copy()
 
     to_encode["sub"] = str(to_encode["sub"])
-    expire = now + (expire_timedelta or timedelta(minutes=expire_min))
+    expire = utcnow() + (expire_timedelta or timedelta(minutes=expire_min))
 
-    to_encode.update({"exp": expire, "iat": now})
+    to_encode.update({"exp": expire, "iat": utcnow()})
     encoded = jwt.encode(to_encode, key, algorithm)
     return encoded
 
@@ -47,7 +48,7 @@ def validate_password(hashed_password: bytes, password: str) -> bool:
     return bcrypt.checkpw(password=password.encode(), hashed_password=hashed_password)
 
 def is_expired(expire_at: datetime):
-    return expire_at.replace(tzinfo=timezone.utc) < now
+    return expire_at.replace(tzinfo=timezone.utc) < utcnow()
 
 def hash_token(token_raw: str):
     return hashlib.sha256(token_raw.encode()).hexdigest()
@@ -62,8 +63,8 @@ def create_refresh_token(db: Session,
     new_token =  RefreshSessions(
         refresh_token=hash_token(refresh_token),
         user_id=user_id,
-        expires_at=now + (expire_timedelta or timedelta(days=expire_days)),
-        created_at=now
+        expires_at=utcnow() + (expire_timedelta or timedelta(days=expire_days)),
+        created_at=utcnow()
     )
     db.add(new_token)
     db.commit()
@@ -86,6 +87,8 @@ def is_valid_refresh_token(db: Session, refresh_token: str) -> tuple:
         refresh_token = hash_token(new_refresh_token)
     ))
     db.commit()
+    db.refresh(token)
+    db.expire_all()
     return (token.user_id, new_refresh_token)
 
 def remove_refresh_session(db: Session, refresh_token: str) -> None:

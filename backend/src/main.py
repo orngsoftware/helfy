@@ -26,7 +26,8 @@ origins = [
     "http://localhost:3000",
     "http://localhost:80",
     "http://localhost:443",
-    "http://localhost"
+    "http://localhost",
+    "http://72.60.32.234"
 ]
 
 app.add_middleware(
@@ -43,13 +44,13 @@ def root():
 
 @app.post("/auth/sign-up")
 def register(user_data: UserSchema, db: Annotated[Session, Depends(get_session)], response: Response):
-    if create_user(db, user_data):
+    if create_user(db, user_data, "local"):
         user = get_user(db, email=user_data.email)
         access_token = au.encode_jwt(payload={
             "sub": user.id
         })
         refresh_token = au.create_refresh_token(db, user.id)
-        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=False, samesite="lax", max_age=30*24*60*60)
+        response.set_cookie(key="refresh_token", value=refresh_token, httponly=True, secure=True, samesite="strict", max_age=30*24*60*60)
         return {"ok": True, "msg": "User has been added successfully", "token": TokenSchema(access_token=access_token, token_type="bearer")}
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User with this email already exsists")
@@ -69,8 +70,8 @@ def login(response: Response,
         response.set_cookie(key="refresh_token", 
                             value=refresh_token, 
                             httponly=True, 
-                            secure=False, 
-                            samesite="lax",
+                            secure=True, 
+                            samesite="strict",
                             max_age=30*24*60*60)
         return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
@@ -93,8 +94,8 @@ def refresh_access_token(db: Annotated[Session, Depends(get_session)],
     response.set_cookie(key="refresh_token", 
                         value=validation_result[1], 
                         httponly=True, 
-                        secure=False, 
-                        samesite="lax", 
+                        secure=True, 
+                        samesite="strict", 
                         max_age=30*24*60*60)
     return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
 
@@ -126,7 +127,7 @@ def google_callback(db: Annotated[Session, Depends(get_session)], code: CodeSche
     user = get_user(db, email=email)
     if not user:
         new_user = UserSchema(email=email, password="random", auth_provider="google")
-        create_user(db, new_user)
+        create_user(db, new_user, "google")
         user = get_user(db, email=email)
     access_token = au.encode_jwt(payload={
             "sub": user.id

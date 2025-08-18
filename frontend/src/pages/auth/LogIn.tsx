@@ -5,7 +5,7 @@ import { setAccessToken } from '../../lib/tokenManager';
 import Divider from '../../components/Divider';
 
 export function continueWithGoogle() {
-    window.location.href = 'http://localhost:8000/auth/google/url' // <-- Change on production to https://server_name/auth/google/url
+    window.location.href = "https://helfy.space/api/auth/google/url"
 }
 
 export default function LogInForm () {

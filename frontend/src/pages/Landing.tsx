@@ -37,7 +37,7 @@ const WordSwitcher = (props: any) => {
 export const LandingFooter = () => {
     return (
         <footer>
-            <div className="row" style={{gap: 20}}>
+            <div className="row" style={{gap: 20, flexWrap: "wrap", justifyContent: "center", marginBottom: 20}}>
                 <Link to="/sign-up">Sign up</Link>
                 <Link to="/log-in">Log in</Link>
                 <Link to="/">Home Page</Link>

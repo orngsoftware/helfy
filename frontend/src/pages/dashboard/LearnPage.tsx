@@ -10,7 +10,7 @@ const LearnPage = () => {
         title: null,
         tldr: null,
         day: null,
-        body: null,
+        body: "",
         learning_xp: null
     })
     const isTLDR = searchParams.get("tldr")
@@ -66,7 +66,7 @@ const LearnPage = () => {
                         <p className="right-text">{learnData.tldr}</p>
                     </div>
                 ): (
-                <p style={{maxWidth: 350}}>{learnData.body}</p>
+                <div style={{maxWidth: 350}} dangerouslySetInnerHTML={{ __html: learnData.body }} />
                 )}
                 <button className="to-bottom btn-primary" onClick={handleContinue}>
                     Continue

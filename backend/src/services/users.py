@@ -8,7 +8,7 @@ from ..auth.utils import hash_password
 
 today = datetime.date.today()
 
-def create_user(db: Session, user_data: UserSchema) -> bool:
+def create_user(db: Session, user_data: UserSchema, auth_provider: str) -> bool:
     """Creates a new user"""
     if get_user(db, user_data.email):
         return False
@@ -17,7 +17,7 @@ def create_user(db: Session, user_data: UserSchema) -> bool:
         email=user_data.email,
         password=hash_password(user_data.password),
         started=today,
-        auth_provider="local"
+        auth_provider=auth_provider
     )
     db.add(user)
     db.commit()
