@@ -2,7 +2,7 @@ import axios from "axios";
 import { clearAccessToken, getAccessToken, setAccessToken } from "./tokenManager";
 
 export const authAxios= axios.create({
-    baseURL: "/api",
+    baseURL: "http://localhost:8000",
     headers: {
         'Content-Type': 'application/json',
     },
@@ -10,7 +10,7 @@ export const authAxios= axios.create({
 });
 
 const axiosInstance= axios.create({
-    baseURL: "/api",
+    baseURL: "http://localhost:8000",
     headers: {
         'Content-Type': 'application/json'
     },
