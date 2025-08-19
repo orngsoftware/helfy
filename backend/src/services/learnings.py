@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from ..exceptions import DuplicateError
 from .users import increase_streak, change_xp, update_last_completed
 from ..models import UserCompletedLearnings, Learnings, Users
@@ -7,12 +7,21 @@ from .companions import update_stage
 
 def get_learning_day(db: Session, day: int) -> Learnings | None:
     """Gets learning relevant for the day"""
-    result = db.execute(select(Learnings).where(Learnings.day <= day)).scalars().first()
+    
+    result = db.execute(select(Learnings)
+            .where(Learnings.day <= day)
+            .order_by(desc(Learnings.day))
+            .limit(1)
+        ).scalars().first()
     return result
 
 def get_learning_short(db: Session, day: int, user: Users) -> tuple[Learnings, str] | None:
     """Returns tldr, title and xp of the learning, and whether user has completed it"""
-    learning = db.execute(select(Learnings).where(Learnings.day <= day)).scalars().first()
+    learning = db.execute(select(Learnings)
+            .where(Learnings.day <= day)
+            .order_by(desc(Learnings.day))
+            .limit(1)
+        ).scalars().first()
     if not learning:
         return None
     
