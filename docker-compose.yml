@@ -1,28 +1,12 @@
 networks:
   net:
 services:
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    networks:
-      - net
-  nginx:
-    build:
-      context: ./frontend
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - backend
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    networks:
-      - net
   backend:
     container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
     build:
       context: ./backend
     networks:
@@ -41,5 +25,3 @@ services:
 
 volumes:
   pg_data:
-  certbot_conf:
-  certbot_www:
