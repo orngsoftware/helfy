@@ -79,7 +79,7 @@ footer {
 
 .to-bottom {
     margin-top: auto !important;
-    margin-bottom: 100px;
+    margin-bottom: 150px;
 }
 
 /* Buttons */
@@ -194,7 +194,7 @@ footer {
     display: flex;
     justify-content: center;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .icon-row {
@@ -401,6 +401,15 @@ footer {
     align-self: center;
     position: fixed;
     bottom: 0;
+}
+
+.btn-down {
+    position: fixed;
+    z-index: 5;
+    align-self: center;
+    bottom: 2px;
+    max-width: 350px;
+    box-shadow: 0 0 10px var(--dark-grey-color);
 }
 
 .card.landing-demo {
