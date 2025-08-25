@@ -6,7 +6,8 @@ from ..models import Users
 from ..schemas import UserSchema, StreakSchema
 from ..auth.utils import hash_password
 
-today = datetime.date.today()
+def get_today_date() -> datetime.date:
+    return datetime.date.today()
 
 def create_user(db: Session, user_data: UserSchema, auth_provider: str) -> bool:
     """Creates a new user"""
@@ -16,7 +17,7 @@ def create_user(db: Session, user_data: UserSchema, auth_provider: str) -> bool:
     user = Users(
         email=user_data.email,
         password=hash_password(user_data.password),
-        started=today,
+        started=get_today_date(),
         auth_provider=auth_provider
     )
     db.add(user)
@@ -34,7 +35,7 @@ def get_user(db: Session, email: str | None = None, user_id: int | None = None) 
 
 def days(start_date: datetime.date) -> int:
     """Determines how many days have passed from the date"""
-    dif = today - start_date
+    dif = get_today_date() - start_date
     return dif.days
 
 def change_xp(amount: int, user_id: int, decrease: bool = False, learning: bool = False) -> Update:
@@ -52,33 +53,33 @@ def change_xp(amount: int, user_id: int, decrease: bool = False, learning: bool 
 def update_last_completed(db: Session, user_id: int) -> None:
     """Updates last_completed date of a user to today"""
     user = get_user(db, user_id=user_id)
-    if user.last_completed != today:
+    if user.last_completed != get_today_date():
         db.execute(update(Users).where(Users.id == user_id).values(
-            last_completed=today
+            last_completed=get_today_date()
         ))
         db.commit()
     return None
 
 def increase_streak(db: Session, user_id: int) -> None:
     user = get_user(db, user_id=user_id)
-    if user.last_completed == today and user.last_streak_update != today:
+    if user.last_completed == get_today_date() and user.last_streak_update != get_today_date():
         db.execute(update(Users).where(Users.id == user_id).values(
             streak=Users.streak + 1,
-            last_streak_update=today
+            last_streak_update=get_today_date()
         ))
         db.commit()
     return None
 
 def calculate_streak(db: Session, user_id: int) -> StreakSchema:
     user = get_user(db, user_id=user_id)
-    if user.last_completed == today and user.last_streak_update == today:
+    if user.last_completed == get_today_date() and user.last_streak_update == get_today_date():
         return {"streak": user.streak, "status": "kept"}
-    elif user.last_completed == today - datetime.timedelta(days = 1):
+    elif user.last_completed == get_today_date() - datetime.timedelta(days = 1):
         return {"streak": user.streak, "status": "same"}
     else:
         db.execute(update(Users).where(Users.id == user_id).values(
             streak=0,
-            last_streak_update=today
+            last_streak_update=get_today_date()
         ))
         db.commit()
         return {"streak": 0, "status": "lost"}
