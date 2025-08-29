@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy import select, update, Update
 from sqlalchemy.orm import Session
-from .companions import create_default_companion
+from .companions import CompanionService
 from ..models import Users
 from ..schemas import UserSchema, StreakSchema
 from ..auth.utils import hash_password
@@ -22,7 +22,8 @@ def create_user(db: Session, user_data: UserSchema, auth_provider: str) -> bool:
     )
     db.add(user)
     db.commit()
-    create_default_companion(db, user.id)
+    companion = CompanionService(db, user)
+    companion.create_default_companion()
     return True
 
 def get_user(db: Session, email: str | None = None, user_id: int | None = None) -> Users | None:

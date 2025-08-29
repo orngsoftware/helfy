@@ -1,129 +1,85 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, update, Select, delete
-from datetime import date, timedelta
+from sqlalchemy import select, Select
 from typing import List
-from ..exceptions import DuplicateError, TimeGapError
+from ..exceptions import DuplicateError
 from ..models import Tasks, UserTasks, UserHabits, Users
 from .users import change_xp, update_last_completed, increase_streak
 
-def user_completed_tasks(user_id) -> Select:
-    """Return Select with tasks which user has completed"""
-    return select(
-        UserTasks.task_id).where(
-        UserTasks.user_id == user_id)
-
-def get_uncompleted_tasks(db: Session, user_id: int, day: int) -> List[Tasks] | None:
-    """Get a list of incompleted tasks for today"""
-    tasks = db.execute(select(Tasks).where(
-        Tasks.id.not_in(user_completed_tasks(user_id)),
-        Tasks.id.not_in(select(UserHabits.task_id).where(
-            UserHabits.user_id == user_id)),
-        Tasks.day <= day
-    )).scalars().all()
-    if not tasks:
-        return []
-    result = []
-    delayed = False
-    for task in tasks:
-        if task.day < day:
-            delayed = True
-        result.append(
-            {
-                "id": task.id,
-                "name": task.name,
-                "description": task.description,
-                "difficulty": task.difficulty,
-                "xp": task.xp,
-                "delayed_xp": task.delayed_xp,
-                "delayed": delayed
-            }
+class TaskService:
+    def __init__(self, db: Session, user: Users):
+        self.db = db
+        self.user = user
+    
+    def _get_completed_tasks(self) -> Select:
+        return select(UserTasks.task_id).where(
+            UserTasks.user_id == self.user.id
         )
 
-    return result
-
-def get_uncompleted_habits(db: Session, user_id: int) -> List[Tasks]:
-    """Get a list of incompleted habits for today"""
-    user_habits = select(UserHabits.task_id).where(
-        UserHabits.user_id == user_id,
-        UserHabits.last_completed != date.today())
-    habits = db.execute(select(Tasks).where(
-        Tasks.id.in_(user_habits)
-    )).scalars().all()
-    return habits
-
-def complete(db: Session, user: Users, user_day: int, task_id: int, completed: bool = True) -> None:
-    """Completes and incompletes both habits and tasks"""
-    task = db.execute(select(Tasks).where(Tasks.id == task_id)).scalar_one_or_none()
-    xp = task.delayed_xp if task.day < user_day else task.xp
-    change_xp_query = change_xp(xp, user.id) if completed else change_xp(task.xp, user.id, decrease=True)
-    
-    if task_id in [habit.task_id for habit in user.habits]:
-        db.execute(update(UserHabits).where(
-            UserHabits.user_id == user.id,
-            UserHabits.task_id == task_id
-        ).values(last_completed=date.today()))
-        
-        update_last_completed(db, user.id)
-        increase_streak(db, user.id)
-        db.execute(change_xp(xp*2, user.id))
-        db.commit()
-        return None
-
-    if db.execute(select(UserTasks.task_id).where(UserTasks.user_id == user.id, 
-                                                  UserTasks.task_id == task_id)).scalar_one_or_none():
-        raise DuplicateError
-    
-    new_complete = UserTasks(
-        user_id=user.id,
-        task_id=task_id,
-        completed=completed
-    )
-    update_last_completed(db, user.id)
-    increase_streak(db, user.id)
-    db.execute(change_xp_query)
-    db.add(new_complete)
-    db.commit()
-    return None
-    
-def create_habit(db: Session, user_id: int, task_id: int) -> None:
-    """Creates a new habit for the user"""
-    if db.execute(select(UserHabits.task_id).where(UserHabits.user_id == user_id,
-                                                   UserHabits.task_id == task_id)).scalar_one_or_none():
-        raise DuplicateError
-    new_habit = UserHabits(
-        user_id=user_id,
-        habit_created=date.today(),
-        task_id=task_id,
-        last_completed=date.today() - timedelta(days = 1)
-    )
-    db.add(new_habit)
-    db.commit()
-    return None
-
-def create_habits_auto(db: Session, user_id: int, day: int) -> None:
-    """Creates a new habit for the user automatically based on the day"""
-    user_habits = select(UserHabits.task_id).where(
-        UserHabits.user_id == user_id)
-    tasks = db.execute(select(Tasks).where(Tasks.day_create_habit == day, 
-                                           Tasks.id.not_in(user_habits))).scalars().all()
-    if tasks:
+    def get_uncompleted_tasks(self, user_day: int) -> list[dict]:
+        """Get tasks relevant to the day, that user hasn't completed"""
+        tasks = self.db.execute(select(Tasks).where(
+            Tasks.id.not_in(self._get_completed_tasks()),
+            Tasks.id.not_in(select(UserHabits.task_id).where(
+                UserHabits.user_id == self.user.id)),
+            Tasks.day <= user_day
+        )).scalars().all()
+        if not tasks:
+            return []
+        result = []
         for task in tasks:
-            create_habit(db, user_id, task.id)
-    return None
-
-def remove_habit(db: Session, user_id: int, task_id: int) -> None:
-    """Deletes habit from user_habits table"""
-    created_at = db.execute(select(UserHabits.habit_created).where(
-        UserHabits.task_id == task_id,
-        UserHabits.user_id == user_id
-    )).scalar_one_or_none()
-
-    dif = date.today() - created_at
-    if dif.days < 7:
-        raise TimeGapError
+            delayed = False
+            if task.day < user_day:
+                delayed = True
+            result.append(
+                {
+                    "id": task.id,
+                    "name": task.name,
+                    "description": task.description,
+                    "difficulty": task.difficulty,
+                    "xp": task.xp,
+                    "delayed_xp": task.delayed_xp,
+                    "delayed": delayed
+                }
+            )
+        return result
     
-    db.execute(delete(UserHabits).where(
-        UserHabits.user_id == user_id,
-        UserHabits.task_id == task_id))
-    db.commit()
-    return None
+    def complete_task(self, task_id: int, user_day: int) -> None:
+        """Completes task, updates streak and increases XP"""
+        if task_id in self.db.execute(select(UserTasks.task_id).where(UserTasks.user_id == self.user.id, 
+                                    UserTasks.task_id == task_id)).scalars().all():
+            raise DuplicateError("User has completed this task already")
+        
+        task = self.db.execute(select(Tasks).where(
+            Tasks.id == task_id)).scalar_one_or_none()
+        
+        new_complete = UserTasks(
+            user_id=self.user.id,
+            task_id=task_id,
+            completed=True
+        )
+        update_last_completed(self.db, self.user.id)
+        increase_streak(self.db, self.user.id)
+        self.db.add(new_complete)
+        if task.day < user_day:
+            self.db.execute(change_xp(task.delayed_xp, self.user.id))
+        else:
+            self.db.execute(change_xp(task.xp, self.user.id))
+        self.db.commit()
+        return None
+    
+    def incomplete_task(self, task_id: int) -> None:
+        """Marks task as incomplete and decreases XP"""
+        if task_id in [task.id for task in self.user.completed_tasks]:
+            raise DuplicateError("User has completed this task already")
+        task = self.db.execute(select(Tasks).where(
+            Tasks.id == task_id)).scalar_one_or_none()
+        
+        new_incomplete = UserTasks(
+            user_id=self.user.id,
+            task_id=task_id,
+            completed=False
+        )
+        self.db.add(new_incomplete)
+        self.db.execute(change_xp(task.xp, self.user.id, decrease=True))
+        self.db.commit()
+        return None
