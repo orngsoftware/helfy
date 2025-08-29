@@ -8,7 +8,6 @@ class CompanionService:
     def __init__(self, db: Session, user: Users):
         self.db = db
         self.user = user
-        self.accessory_ids = [a.accessory_id for a in self.user.companion.accessories]
 
     def create_default_companion(self) -> None:
         """Create new default companion for the user"""
@@ -24,13 +23,13 @@ class CompanionService:
     def get_accessories(self) -> list[Accessories]:
         """Returns all accessories the user hasn't purchased"""
         accessories = self.db.execute(select(Accessories).where(
-            Accessories.id.not_in(self.accessory_ids))).scalars().all()
+            Accessories.id.not_in([a.accessory_id for a in self.user.companion.accessories]))).scalars().all()
 
         return accessories
 
     def add_accessory(self, accessory_id: int) -> None:
         """Adds new accessory to the user companion and subtracts relevant XP from the user"""
-        if accessory_id in self.accessory_ids:
+        if accessory_id in [a.accessory_id for a in self.user.companion.accessories]:
             raise DuplicateError("Same accessory can't be added twice")
         
         accessory = self.db.execute(select(Accessories).where(

@@ -42,8 +42,8 @@ class LearnService:
             user_id=self.user.id,
             learning_id=learning_id
         )
-        companion = CompanionService
-        companion.update_stage(self.db, self.user)
+        companion = CompanionService(self.db, self.user)
+        companion.update_stage()
         self.db.add(new_complete)
         self.db.commit()
         return None

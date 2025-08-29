@@ -21,8 +21,8 @@ def get_accessories(db: Annotated[Session, Depends(get_session)],
     if inventory:
         accessories = user.companion.accessories
     else:
-        companion = CompanionService(db, user)
-        accessories = companion.get_accessories()
+        service = CompanionService(db, user)
+        accessories = service.get_accessories()
     return {"ok": True, "accessories": accessories}
 
 @router.post("/accessories/buy/{accessory_id}")
@@ -33,7 +33,7 @@ def buy_accessory(db: Annotated[Session, Depends(get_session)],
         companion = CompanionService(db, user)
         companion.add_accessory(accessory_id)
     except ValueError:
-        raise HTTPException(status=400, detail="Not enough Action XP")
+        raise HTTPException(status_code=400, detail="Not enough Action XP")
     except DuplicateError:
         raise HTTPException(status_code=400, 
                             detail="User has purchased this accessory already")
