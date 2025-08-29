@@ -3,42 +3,47 @@ from sqlalchemy import select
 from ..exceptions import DuplicateError
 from .users import increase_streak, change_xp, update_last_completed
 from ..models import UserCompletedLearnings, Learnings, Users
-from .companions import update_stage
+from .companions import CompanionService
 
-def get_learning_day(db: Session, day: int) -> Learnings | None:
-    """Gets learning relevant for the day"""
-    result = db.execute(select(Learnings).where(Learnings.day <= day)).scalars().first()
-    return result
+class LearnService:
+    def __init__(self, db: Session, user: Users):
+        self.db = db
+        self.user = user
 
-def get_learning_short(db: Session, day: int, user: Users) -> tuple[Learnings, str] | None:
-    """Returns tldr, title and xp of the learning, and whether user has completed it"""
-    learning = db.execute(select(Learnings).where(Learnings.day <= day)).scalars().first()
-    if not learning:
+    def get_learning_day(self, user_day: int) -> Learnings | None:
+        """Gets learning relevant for the day"""
+        result = self.db.execute(select(Learnings).where(Learnings.day <= user_day)).scalars().first()
+        return result
+
+    def get_learning_short(self, user_day: int) -> tuple[Learnings, str] | None:
+        """Returns tldr, title and xp of the learning, and whether user has completed it"""
+        learning = self.db.execute(select(Learnings).where(Learnings.day <= user_day)).scalars().first()
+        if not learning:
+            return None
+        
+        user_completed_learnings = [l.learning_id for l in self.user.completed_learnings]
+        completed = True if learning.id in user_completed_learnings else False
+
+        return (learning, completed)
+    
+    def learning_complete(self, learning_id: int) -> None:
+        user_completed_learnings = [l.learning_id for l in self.user.completed_learnings]
+        
+        if learning_id in user_completed_learnings:
+            raise DuplicateError("Can't complete same learning more than once")
+        
+        xp = self.db.execute(select(Learnings.learning_xp).where(
+            Learnings.id == learning_id)).scalar_one_or_none()
+        
+        update_last_completed(self.db, self.user.id)
+        increase_streak(self.db, self.user.id)
+        self.db.execute(change_xp(xp, self.user.id, learning=True))
+        new_complete = UserCompletedLearnings(
+            user_id=self.user.id,
+            learning_id=learning_id
+        )
+        companion = CompanionService
+        companion.update_stage(self.db, self.user)
+        self.db.add(new_complete)
+        self.db.commit()
         return None
-    
-    user_completed_learnings = [l.learning_id for l in user.completed_learnings]
-    completed = True if learning.id in user_completed_learnings else False
-
-    return (learning, completed)
-
-    
-def learning_complete(db: Session, learning_id: int, user: Users) -> None:
-    user_completed_learnings = [l.learning_id for l in user.completed_learnings]
-    
-    if learning_id in user_completed_learnings:
-        raise DuplicateError
-    
-    xp = db.execute(select(Learnings.learning_xp).where(Learnings.id == learning_id)).scalar_one_or_none()
-    
-    update_last_completed(db, user.id)
-    increase_streak(db, user.id)
-    db.execute(change_xp(xp, user.id, learning=True))
-    new_complete = UserCompletedLearnings(
-        user_id=user.id,
-        learning_id=learning_id
-    )
-    update_stage(db, user)
-    db.add(new_complete)
-    db.commit()
-    return None
-
