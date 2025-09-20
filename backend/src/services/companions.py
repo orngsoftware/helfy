@@ -8,7 +8,6 @@ class CompanionService:
     def __init__(self, db: Session, user: Users):
         self.db = db
         self.user = user
-        self.accessory_ids = [a.accessory_id for a in self.user.companion.accessories]
 
     def create_default_companion(self) -> None:
         """Create new default companion for the user"""
