@@ -12,14 +12,14 @@ router = APIRouter(prefix="/companion", tags=["companion"])
 
 @router.get("/")
 def get_companion(user: Annotated[Users, Depends(get_current_user)]):
-    return {"ok": True, "companion": user.companion}
+    return {"ok": True, "companion": user.current_plan.companion}
 
 @router.get("/accessories")
 def get_accessories(db: Annotated[Session, Depends(get_session)], 
                     user: Annotated[Users, Depends(get_current_user)], 
                     inventory: bool | None = None):
     if inventory:
-        accessories = user.companion.accessories
+        accessories = user.current_plan.companion.accessories
     else:
         companion = CompanionService(db, user)
         accessories = companion.get_accessories()

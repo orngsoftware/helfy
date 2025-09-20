@@ -15,7 +15,7 @@ const HabitPage = () => {
     async function completeHabit() {
         try {
             await axiosInstance.post(`/tasks/complete/${habit.id}`)
-            navigate("/done/habit", {state: {xp: habit.xp}})
+            navigate("/done/habit", {state: {xp: habit.xp * 2}})
         } catch(error: any) {
             if (error.response?.status === 400) {
                 navigate("/dashboard")
@@ -58,7 +58,7 @@ const HabitPage = () => {
                 <Divider color="var(--dark-yellow-color)" />
                 <div className="row" style={{marginTop: 25, gap: 15}}>
                     <div className="col center" style={{color: "var(--dark-green-color)"}}>
-                        <p className="sm-heading">+ {habit.xp} xp</p>
+                        <p className="sm-heading">+ {habit.xp * 2} xp</p>
                         <div className="circle-btn" onClick={completeHabit}>
                             <TickIcon height="36" width="36" color="var(--dark-green-color)" />
                         </div>

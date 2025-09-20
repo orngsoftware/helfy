@@ -13,12 +13,12 @@ const Tasks = ({ tasksData }: { tasksData: any}) => {
     const navigate = useNavigate()
 
     return (
-        <div className="col center" style={{gap: 15, marginBottom: 100}}>
+        <div className="col center" style={{gap: 15, marginBottom: 100, width: 320}}>
             {tasksData.length === 0 ? (
                 <p className="sm-heading">No more tasks for today</p>
             ) : (
                 tasksData.map((task: any) => (
-                    <div className="card clickable" onClick={() => navigate("/task", {state: task})} style={{width: "100%", backgroundColor: task.delayed ? "var(--orange-color)" : "white"}}>
+                    <div className={task.delayed ? "card clickable task delayed" : "card clickable task"} onClick={() => navigate("/task", {state: task})}>
                         <div className="task-mark icon-row">
                             <TickIcon color="var(--black-color)" width="20" height="20" />
                             <p>{task.delayed ? "Delayed task" : "Task"}</p>

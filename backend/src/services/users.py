@@ -1,8 +1,7 @@
 import datetime
 from sqlalchemy import select, update, Update
 from sqlalchemy.orm import Session
-from .companions import CompanionService
-from ..models import Users
+from ..models import Users, UserPlans
 from ..schemas import UserSchema, StreakSchema
 from ..auth.utils import hash_password
 
@@ -17,13 +16,10 @@ def create_user(db: Session, user_data: UserSchema, auth_provider: str) -> bool:
     user = Users(
         email=user_data.email,
         password=hash_password(user_data.password),
-        started=get_today_date(),
         auth_provider=auth_provider
     )
     db.add(user)
     db.commit()
-    companion = CompanionService(db, user)
-    companion.create_default_companion()
     return True
 
 def get_user(db: Session, email: str | None = None, user_id: int | None = None) -> Users | None:
@@ -39,17 +35,22 @@ def days(start_date: datetime.date) -> int:
     dif = get_today_date() - start_date
     return dif.days
 
-def change_xp(amount: int, user_id: int, decrease: bool = False, learning: bool = False) -> Update:
-    """Constructs Update for increasing or decreasing XP"""
+def change_xp(db: Session, 
+              amount: int,
+              current_plan_id: int,
+              decrease: bool = False, 
+              learning: bool = False) -> None:
+    """Increases or decreases XP"""
     if learning:
-        xp_stmt = Users.learning_xp + amount
-        result = update(Users).where(Users.id == user_id).values(
-            learning_xp=xp_stmt)
+        xp_stmt = UserPlans.learning_xp + amount
+        db.execute(update(UserPlans).where(
+            UserPlans.id == current_plan_id).values(learning_xp=xp_stmt))
+        
     else: 
-        xp_stmt = (Users.xp - amount) if decrease else (Users.xp + amount)
-        result = update(Users).where(Users.id == user_id).values(
-            xp=xp_stmt)
-    return result
+        xp_stmt = (UserPlans.xp - amount) if decrease else (UserPlans.xp + amount)
+        db.execute(update(UserPlans).where(UserPlans.id == current_plan_id).values(xp=xp_stmt))
+    db.commit()
+    return None
 
 def update_last_completed(db: Session, user_id: int) -> None:
     """Updates last_completed date of a user to today"""
@@ -84,3 +85,18 @@ def calculate_streak(db: Session, user_id: int) -> StreakSchema:
         ))
         db.commit()
         return {"streak": 0, "status": "lost"}
+
+def update_current_plan(db: Session, user_id: int, plan_id: int) -> None:
+    new_current_plan = db.execute(select(UserPlans.id).where(
+        UserPlans.plan_id == plan_id,
+        UserPlans.user_id == user_id
+    )).scalar_one_or_none()
+
+    if not new_current_plan:
+        raise KeyError("User doesn't have this plan")
+
+    db.execute(update(Users).where(Users.id == user_id).values(
+        current_plan_id=new_current_plan
+    ))
+    db.commit()
+    return None

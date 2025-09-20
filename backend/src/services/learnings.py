@@ -13,7 +13,8 @@ class LearnService:
     def get_learning_day(self, user_day: int) -> Learnings | None:
         """Gets learning relevant for the day"""
         result = self.db.execute(select(Learnings)
-            .where(Learnings.day <= user_day)
+            .where(Learnings.day <= user_day,
+                   Learnings.plan_id == self.user.current_plan.plan_id)
             .order_by(desc(Learnings.day))
             .limit(1)
         ).scalars().first()
@@ -22,7 +23,8 @@ class LearnService:
     def get_learning_short(self, user_day: int) -> tuple[Learnings, str] | None:
         """Returns tldr, title and xp of the learning, and whether user has completed it"""
         learning = self.db.execute(select(Learnings)
-            .where(Learnings.day <= user_day)
+            .where(Learnings.day <= user_day,
+                   Learnings.plan_id == self.user.current_plan.plan_id)
             .order_by(desc(Learnings.day))
             .limit(1)
         ).scalars().first()
@@ -45,7 +47,10 @@ class LearnService:
         
         update_last_completed(self.db, self.user.id)
         increase_streak(self.db, self.user.id)
-        self.db.execute(change_xp(xp, self.user.id, learning=True))
+        change_xp(self.db,
+                  xp,
+                  self.user.current_plan.id, 
+                  learning=True)
         new_complete = UserCompletedLearnings(
             user_id=self.user.id,
             learning_id=learning_id

@@ -13,6 +13,7 @@ import LandingPage from './pages/Landing'
 import AuthGoogle from './pages/AuthGoogle'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import PlanChoicePage from './pages/PlanChoice'
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
           <Route path='/dashboard/companion' element={<CompanionPage />} />
         </Route>
         <Route path='/auth/google' element={<AuthGoogle />} />
+        <Route path='/plans' element={<PlanChoicePage />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
   )

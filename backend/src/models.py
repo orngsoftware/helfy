@@ -37,17 +37,58 @@ class Users(Base):
     email: Mapped[str]
     password: Mapped[bytes] = mapped_column(BYTEA)
     auth_provider: Mapped[str] = mapped_column(default="local", nullable=True)
-    started: Mapped[date]
-    last_completed: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
-    last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days = 1))
+
+    last_completed: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days=1))
+    last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days=1))
     streak: Mapped[int] = mapped_column(nullable=True, default=0)
-    xp: Mapped[int] = mapped_column(nullable=True, default=0)
-    learning_xp: Mapped[int] = mapped_column(nullable=True, default=0)
 
     completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
     completed_learnings: Mapped[List["UserCompletedLearnings"]] = relationship(back_populates="user")
+
     habits: Mapped[List["UserHabits"]] = relationship(back_populates="user")
-    companion: Mapped["Companions"] = relationship(back_populates="user")
+
+    # user has many plans
+    plans: Mapped[List["UserPlans"]] = relationship(back_populates="user", foreign_keys="UserPlans.user_id")
+    
+    # user has one current plan
+    current_plan_id: Mapped[int] = mapped_column(
+        ForeignKey("user_plans.id", use_alter=True),
+        nullable=True
+    )
+    current_plan: Mapped["UserPlans"] = relationship(
+        "UserPlans",
+        foreign_keys=[current_plan_id],
+        uselist=False,
+        post_update=True
+    )
+
+class UserPlans(Base):
+    __tablename__="user_plans"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    xp: Mapped[int] = mapped_column(nullable=True, default=0)
+    learning_xp: Mapped[int] = mapped_column(nullable=True, default=0)
+    started: Mapped[date]
+
+    # user has many plans
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user: Mapped["Users"] = relationship(back_populates="plans", foreign_keys=[user_id])
+
+    companion: Mapped["Companions"] = relationship(back_populates="user_plan")    
+    
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+    plan: Mapped["Plans"] = relationship(back_populates="user_plans")
+
+
+class Plans(Base):
+    __tablename__="plans"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    category: Mapped[str]
+    description: Mapped[str]
+    default_companion_type: Mapped[str]
+
+    user_plans: Mapped[List["UserPlans"]] = relationship(back_populates="plan")
+    accessories: Mapped[List["Accessories"]] = relationship(back_populates="plan")
 
 class RefreshSessions(Base):
     __tablename__="refresh_sessions"
@@ -79,6 +120,7 @@ class Tasks(Base):
     difficulty: Mapped[int]
     xp: Mapped[int]
     delayed_xp: Mapped[int]
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
 
 class Learnings(Base):
     __tablename__="learnings"
@@ -88,6 +130,7 @@ class Learnings(Base):
     day: Mapped[int]
     body: Mapped[str]
     learning_xp: Mapped[int]
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
 
 class Companions(Base):
     __tablename__="companions"
@@ -98,8 +141,8 @@ class Companions(Base):
 
     accessories: Mapped[List["CompanionAccessories"]] = relationship(back_populates="companion")
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped["Users"] = relationship(back_populates="companion")
+    user_plan_id: Mapped[int] = mapped_column(ForeignKey("user_plans.id"))
+    user_plan: Mapped["UserPlans"] = relationship(back_populates="companion")
 
 class Accessories(Base):
     __tablename__="accessories"
@@ -107,5 +150,8 @@ class Accessories(Base):
     name: Mapped[str]
     price: Mapped[int]
     level: Mapped[int] = mapped_column(nullable=True)
+
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+    plan: Mapped["Plans"] = relationship(back_populates="accessories")
 
     accessory_companions: Mapped[List["CompanionAccessories"]] = relationship(back_populates="accessory")

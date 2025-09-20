@@ -78,8 +78,12 @@ footer {
 }
 
 .to-bottom {
-    margin-top: auto !important;
-    margin-bottom: 150px;
+    margin-top: auto;
+    margin-bottom: 85px;
+}
+
+.clickable {
+    cursor: pointer;
 }
 
 /* Buttons */
@@ -88,7 +92,7 @@ footer {
     border: none;
     border-radius: 15px;
     color: white;
-    background-color: var(--black-color);
+    background-color: #646464;
     height: 55px;
     width: 100%;
     font-weight: bold;
@@ -97,58 +101,81 @@ footer {
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 5px var(--black-color);
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.btn-primary:hover {
-    background-color: #5a5a5a;
+.btn-primary:active {
+    box-shadow: none;
+    transform: translateY(5px);
 }
 
+/* Green variant */
 .btn-primary.green {
     background-color: var(--green-color);
     color: var(--black-color);
+    box-shadow: 0 5px var(--dark-green-color);
 }
 
-.btn-primary.green:hover {
-    background-color: #d3eea1;
+.btn-primary.green:active {
+    box-shadow: none;
 }
 
+/* Blue variant */
 .btn-primary.blue {
     background-color: var(--blue-color);
     color: var(--black-color);
+    box-shadow: 0 5px var(--dark-blue-color);
 }
 
-.btn-primary.blue:hover {
-    background-color: #a9cff4;
+.btn-primary.blue:active {
+    box-shadow: none;
 }
 
+/* White variant */
 .btn-primary.btn-white {
     background-color: white;
     color: var(--black-color);
-}
-.btn-primary.btn-white:hover {
-    background-color: #f4f4f4;
+    box-shadow: 0 5px var(--dark-grey-color);
 }
 
+.btn-primary.btn-white:active {
+    box-shadow: none;
+}
+
+/* Red variant */
 .btn-primary.btn-red {
     background-color: var(--orange-color);
     border: 2px solid var(--red-color);
     color: var(--red-color);
+    box-shadow: 0 5px var(--red-color);
 }
 
-.btn-primary.btn-red:hover {
-    background-color: #ff9d33;
+.btn-primary.btn-red:active {
+    box-shadow: none;
 }
 
+/* Outline button */
 .btn-outline {
     border: 2px solid var(--black-color);
     background-color: transparent;
     color: var(--black-color);
+    border-radius: 15px;
+    height: 55px;
+    width: 100%;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .btn-outline:hover {
     background-color: var(--dark-grey-color);
 }
+
 
 /* Components and containers */
 
@@ -185,8 +212,44 @@ footer {
     padding: 10px;
 }
 
-.clickable {
-    cursor: pointer;
+.card.clickable {
+    box-shadow: 0 5px var(--dark-grey-color);
+    transition: 0.1s ease, box-shadow 0.1s ease;
+}
+.card.clickable:active {
+    box-shadow: none;
+    transform: translateY(5px);
+}
+.card.clickable.learn {
+    background-color: var(--blue-color);
+    box-shadow: 0 5px var(--dark-blue-color);
+    width: 100%;
+}
+.card.clickable.learn:active {
+    box-shadow: none;
+}
+.card.clickable.task {
+    background-color: white;
+    width: 100%;
+}
+
+.card.clickable.task.delayed {
+    background-color: var(--orange-color);
+    box-shadow: 0 5px var(--red-color);
+}
+
+.card.clickable.task.delayed:active {
+    box-shadow: none;
+}
+
+.card.clickable.task.habit {
+    background-color: var(--yellow-color);
+    border: 2px solid var(--dark-yellow-color);
+    box-shadow: 0 5px var(--dark-yellow-color);
+}
+
+.card.clickable.task.habit:active {
+    box-shadow: none;
 }
 
 .container {
@@ -401,15 +464,6 @@ footer {
     align-self: center;
     position: fixed;
     bottom: 0;
-}
-
-.btn-down {
-    position: fixed;
-    z-index: 5;
-    align-self: center;
-    bottom: 2px;
-    max-width: 350px;
-    box-shadow: 0 0 10px var(--dark-grey-color);
 }
 
 .card.landing-demo {
