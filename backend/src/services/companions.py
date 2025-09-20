@@ -34,7 +34,7 @@ class CompanionService:
 
     def add_accessory(self, accessory_id: int) -> None:
         """Adds new accessory to the user companion and subtracts relevant XP from the user"""
-        if accessory_id in [a.accessory_id for a in self.user.companion.accessories]:
+        if accessory_id in [a.accessory_id for a in self.user.current_plan.companion.accessories]:
             raise DuplicateError("Same accessory can't be added twice")
         
         accessory = self.db.execute(select(Accessories).where(
