@@ -24,7 +24,8 @@ class HabitService:
     def complete_habit(self, task_id: int) -> None:
         """Completes habit, updates streak and increases XP"""
         task = self.db.execute(select(Tasks).where(
-            Tasks.id == task_id)).scalar_one_or_none()
+            Tasks.id == task_id,
+            Tasks.plan_id == self.user.current_plan.plan_id)).scalar_one_or_none()
 
         self.db.execute(update(UserHabits).where(
             UserHabits.user_id == self.user.id,
@@ -33,21 +34,26 @@ class HabitService:
         
         update_last_completed(self.db, self.user.id)
         increase_streak(self.db, self.user.id)
-        self.db.execute(change_xp(task.xp*2, self.user.id))
+        change_xp(self.db, task.xp*2, self.user.id, self.user.current_plan.id)
         self.db.commit()
         return None
     
     def incomplete_habit(self, task_id) -> None:
         """Incompletes habit and decreases XP"""
         task = self.db.execute(select(Tasks).where(
-            Tasks.id == task_id)).scalar_one_or_none()
+            Tasks.id == task_id,
+            Tasks.plan_id == self.user.current_plan.plan_id)).scalar_one_or_none()
         
         self.db.execute(update(UserHabits).where(
             UserHabits.user_id == self.user.id,
             UserHabits.task_id == task_id
         ).values(last_completed=date.today()))
 
-        self.db.execute(change_xp(task.xp*2, self.user.id, decrease=True))
+        change_xp(self.db,
+                  task.xp, 
+                  self.user.id,
+                  self.user.current_plan.id,
+                  decrease=True)
         self.db.commit()
         return None
     
@@ -56,8 +62,9 @@ class HabitService:
 
         if self.db.execute(select(UserHabits.task_id).where(
             UserHabits.user_id == self.user.id,
-            UserHabits.task_id == task_id)).scalar_one_or_none():
-            raise DuplicateError("Can't mark one task as habit twice")
+            UserHabits.task_id == task_id
+            )).scalar_one_or_none():
+                raise DuplicateError("Can't mark one task as habit twice")
         new_habit = UserHabits(
             user_id=self.user.id,
             habit_created=date.today(),

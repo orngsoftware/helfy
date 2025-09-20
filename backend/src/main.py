@@ -4,7 +4,7 @@ from .models import Users
 from .services.users import create_user, get_user, calculate_streak
 from .auth import utils as au
 from .auth.oauth_google import generate_google_auth_redirect_uri, handle_code
-from .api.v1 import tasks_api, learnings_api, companion_api
+from .api.v1 import tasks_api, learnings_api, companion_api, plans_api
 from .dependecies import get_current_user
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, Response, Cookie, status
@@ -19,6 +19,7 @@ app = FastAPI(
 app.include_router(tasks_api.router)
 app.include_router(learnings_api.router)
 app.include_router(companion_api.router)
+app.include_router(plans_api.router)
 
 origins = [
     "http://localhost:5173",
@@ -145,4 +146,4 @@ def get_streak(db: Annotated[Session, Depends(get_session)],
 
 @app.get("/users/stats/xp")
 def get_xp(user: Annotated[Users, Depends(get_current_user)], learning: bool | None = None):
-    return {"ok": True, "xp": user.xp if not learning else user.learning_xp}
+    return {"ok": True, "xp": user.current_plan.xp if not learning else user.current_plan.learning_xp}

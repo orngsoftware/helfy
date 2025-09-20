@@ -1,7 +1,7 @@
 import { motion } from "motion/react"
 
 const ProgressBar = (props: any) => {
-    const { maxValue, value } = props
+    const { maxValue, value, valueName } = props
     const fillWidth = Math.floor((value / maxValue) * 100)
 
     return (
@@ -16,7 +16,7 @@ const ProgressBar = (props: any) => {
                         <div className="bar-shine"></div>
                 </motion.div>
             </div>
-            <p className="sm-heading" style={{width: 100}}>Stage {value}/{maxValue}</p>
+            <p className="sm-heading" style={{width: 100}}>{valueName ? `${valueName} ${value}/${maxValue}` : "" }</p>
         </div>
     )
 }

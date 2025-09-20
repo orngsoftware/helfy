@@ -16,7 +16,7 @@ def get_learning(db: Annotated[Session, Depends(get_session)],
               user: Annotated[Users, Depends(get_current_user)], 
               short: bool | None = None):
     service = LearnService(db, user)
-    user_day = days(user.started)
+    user_day = days(user.current_plan.started)
     if short:
         learning = service.get_learning_short(user_day)
         result = {"ok": True, 

@@ -27,7 +27,7 @@ export default function SignUpForm () {
             const result = await response.data;
             setMessage(result.msg);
             setAccessToken(result.token.access_token)
-            navigate("/dashboard")
+            navigate("/plans")
 
         } catch(error: any) {
             setMessage("500, Error connecting to the server")

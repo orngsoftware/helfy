@@ -62,7 +62,7 @@ const LandingPage = () => {
                     <Link to="/">
                         <img src="/assets/helfy_logo_v1.svg" alt="Helfy Logo" style={{height: 100}}/>
                     </Link>
-                    <p style={{color: "var(--red-color)"}}>Beta v0.1</p>
+                    <p style={{color: "var(--red-color)"}}>v0.2</p>
                 </div>
                 <div className="col center-align" style={{textAlign: "center"}}>
                     <h1 style={{marginBottom: 10, marginTop: 0}}>improve your nutrition <WordSwitcher words={words} interval={1000} color="var(--dark-green-color)" />.</h1>
