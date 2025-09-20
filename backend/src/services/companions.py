@@ -26,8 +26,11 @@ class CompanionService:
     def get_accessories(self) -> list[Accessories]:
         """Returns all accessories the user hasn't purchased"""
         accessories = self.db.execute(select(Accessories).where(
-            Accessories.id.not_in([a.accessory_id for a in self.user.companion.accessories]))).scalars().all()
-
+            Accessories.id.not_in(
+                [a.accessory_id for a in self.user.current_plan.companion.accessories]
+            ),
+            Accessories.plan_id == self.user.current_plan.plan_id
+            )).scalars().all()
         return accessories
 
     def add_accessory(self, accessory_id: int) -> None:
