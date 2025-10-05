@@ -14,14 +14,18 @@
 }
 
 li {
-    font-size: 14px;
+    font-size: 0.875rem;
 }
 
 p {
-    font-size: 14px;
+    font-size: 0.875rem;
     margin: 5px;
     line-height: 1.4rem;
     max-width: 350px;
+}
+
+button {
+    font-size: 0.875rem;
 }
 
 a {

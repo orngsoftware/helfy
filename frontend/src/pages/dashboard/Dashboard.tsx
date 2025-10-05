@@ -28,17 +28,17 @@ const Dashboard = () => {
             const planResponse = await axiosInstance.get("/plans/current")
             const tasksResponse = await axiosInstance.get("/tasks")
             const habitResponse = await axiosInstance.get("/tasks/habits")
-            const learnResponse = await axiosInstance.get("/learning?short=True")
+            const learnResponse = await axiosInstance.get("/learning")
 
             setData({
                 habitsData: habitResponse.data.habits,
-                learnData: learnResponse.data.learning,
+                learnData: learnResponse.data,
                 tasksData: tasksResponse.data.tasks,
                 userCompletedLearning: learnResponse.data.completed,
                 current_plan: planResponse.data.current_plan
             })
         } catch(error: any) {
-            console.log("Error fetching data: ", error)
+            console.error("Error fetching data: ", error)
         } finally {
             setLoading(false)
         }

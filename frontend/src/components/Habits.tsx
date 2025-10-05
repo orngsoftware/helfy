@@ -6,7 +6,7 @@ const Habits = ({ habitsData }: { habitsData: any}) => {
     const navigate = useNavigate()
 
     return (
-        <div className="col center" style={{gap: 15, marginBottom: 100}}>
+        <div className="col center" style={{gap: 15, marginBottom: 100, width: 320}}>
             {habitsData.length === 0 ? (
                 <p className="sm-heading">No more habits for today</p>
             ) : (

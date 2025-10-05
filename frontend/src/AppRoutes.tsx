@@ -14,6 +14,7 @@ import AuthGoogle from './pages/AuthGoogle'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import PlanChoicePage from './pages/PlanChoice'
+import SavedLearnings from './pages/dashboard/SavedLearnings'
 
 const AppRoutes = () => {
   return (
@@ -33,6 +34,7 @@ const AppRoutes = () => {
           <Route path='/task' element={<TaskPage />} />
           <Route path='/habit' element={<HabitPage />} />
           <Route path='/dashboard/companion' element={<CompanionPage />} />
+          <Route path='/dashboard/saved' element={<SavedLearnings />} />
         </Route>
         <Route path='/auth/google' element={<AuthGoogle />} />
         <Route path='/plans' element={<PlanChoicePage />} />

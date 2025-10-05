@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, Select
+from sqlalchemy import select
 from ..exceptions import DuplicateError
 from ..models import Tasks, UserTasks, UserHabits, Users
 from .users import change_xp, update_last_completed, increase_streak

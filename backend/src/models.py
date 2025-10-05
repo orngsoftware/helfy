@@ -22,6 +22,14 @@ class UserCompletedLearnings(Base):
     user: Mapped["Users"] = relationship(back_populates="completed_learnings")
     learning: Mapped["Learnings"] = relationship()
 
+class SavedLearnings(Base):
+    __tablename__="saved_learnings"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    learning_id: Mapped[int] = mapped_column(ForeignKey("learnings.id"), primary_key=True)
+
+    user: Mapped["Users"] = relationship(back_populates="saved_learnings")
+    learning: Mapped["Learnings"] = relationship()
+
 class CompanionAccessories(Base):
     __tablename__ = "companion_accessories"
     companion_id: Mapped[int] = mapped_column(ForeignKey("companions.id"), primary_key=True)
@@ -44,6 +52,7 @@ class Users(Base):
 
     completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
     completed_learnings: Mapped[List["UserCompletedLearnings"]] = relationship(back_populates="user")
+    saved_learnings: Mapped[List["SavedLearnings"]] = relationship(back_populates="user")
 
     habits: Mapped[List["UserHabits"]] = relationship(back_populates="user")
 
@@ -126,11 +135,20 @@ class Learnings(Base):
     __tablename__="learnings"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
-    tldr: Mapped[str]
+    tldr: Mapped[str] = mapped_column(nullable=True)
     day: Mapped[int]
-    body: Mapped[str]
     learning_xp: Mapped[int]
     plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+
+class Texts(Base):
+    __tablename__="texts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(nullable=True)
+    position: Mapped[int]
+    learning_id: Mapped[int] = mapped_column(ForeignKey("learnings.id"))
+    learning: Mapped["Learnings"] = relationship()
+    is_last: Mapped[bool]
+    content: Mapped[str]
 
 class Companions(Base):
     __tablename__="companions"
