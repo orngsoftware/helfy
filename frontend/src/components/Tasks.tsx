@@ -13,7 +13,7 @@ const Tasks = ({ tasksData }: { tasksData: any}) => {
     const navigate = useNavigate()
 
     return (
-        <div className="col center" style={{gap: 15, marginBottom: 100, width: 320}}>
+        <div className="col center-align" style={{gap: 15, marginBottom: 100}}>
             {tasksData.length === 0 ? (
                 <p className="sm-heading">No more tasks for today</p>
             ) : (

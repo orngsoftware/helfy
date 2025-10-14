@@ -51,7 +51,6 @@ class HabitService:
 
         change_xp(self.db,
                   task.xp, 
-                  self.user.id,
                   self.user.current_plan.id,
                   decrease=True)
         self.db.commit()

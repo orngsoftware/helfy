@@ -39,8 +39,8 @@ const PlanChoicePage = () => {
         <Loading />
     ) : (
         <div className="container">
-            <div className="col center" style={{gap: 15}}>
-                <div className="col center-align">
+            <div className="col center-align" style={{gap: 15}}>
+                <div className="col center-align" style={{textAlign: "center"}}>
                     <h3>Choose your area</h3>
                     <p>pick an area you think you currently need the most</p>
                 </div>
@@ -49,7 +49,6 @@ const PlanChoicePage = () => {
                 ) : (
                     data.map((plan: any) => (
                         <div className="card clickable" style={{
-                            width: "90%", 
                             border: plan.current ? "3px solid var(--dark-blue-color)" : ""
                             }} onClick={() => startPlan(plan.id)}
                         >

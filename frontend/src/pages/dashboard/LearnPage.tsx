@@ -88,8 +88,8 @@ const LearnPage = () => {
 
     return  (
         <div className="container">
-            <div className="col">
-                <div className="row" style={{marginTop: 10, marginBottom: 10}}>
+            <div className="col center-align">
+                <div className="row" style={{marginTop: 10, marginBottom: 10, width: "100%"}}>
                     <div className="clickable" onClick={goBack}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--black-color)" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
                     </div>
@@ -103,8 +103,8 @@ const LearnPage = () => {
                     </div>
                 </div>
                 <ProgressBar maxValue={maxTextPos} value={currentPos} />
-                <div style={{marginTop: 20}}>
-                    {textData.title ? (<h3>{textData.title}</h3>) : ""}
+                <div className="col center-align" style={{margin: "20px 0px 0px 0px"}}>
+                    {textData.title ? (<h3 style={{alignSelf: "flex-start"}}>{textData.title}</h3>) : ""}
                     {isLoading ? <Loading /> : (
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -119,13 +119,13 @@ const LearnPage = () => {
                                     damping: 20
                                 }}
                                 className="card" 
-                                style={{width: 280, minHeight: 250, padding: 20}}>
+                                style={{minHeight: 250, padding: 20}}>
                                 <p>{textData.content}</p>
                             </motion.div>
                         </AnimatePresence>
                     )}
                 </div>
-                <button className="btn-primary to-bottom" style={{width: 300}} onClick={handleContinue}>
+                <button className="btn-primary to-bottom" onClick={handleContinue}>
                     Continue
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
                 </button>

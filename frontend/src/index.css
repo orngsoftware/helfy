@@ -14,18 +14,18 @@
 }
 
 li {
-    font-size: 0.875rem;
+    font-size: 1rem;
 }
 
 p {
-    font-size: 0.875rem;
+    font-size: 1rem;
     margin: 5px;
     line-height: 1.4rem;
     max-width: 350px;
 }
 
 button {
-    font-size: 0.875rem;
+    font-size: 1rem;
 }
 
 a {
@@ -99,6 +99,7 @@ footer {
     background-color: #646464;
     height: 55px;
     width: 100%;
+    max-width: 350px;
     font-weight: bold;
     display: flex;
     justify-content: center;
@@ -208,11 +209,11 @@ footer {
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
     border-radius: 15px;
     background-color: white;
     max-width: 350px;
+    width: 100%;
+    box-sizing: border-box;
     padding: 10px;
 }
 
@@ -227,14 +228,12 @@ footer {
 .card.clickable.learn {
     background-color: var(--blue-color);
     box-shadow: 0 5px var(--dark-blue-color);
-    width: 100%;
 }
 .card.clickable.learn:active {
     box-shadow: none;
 }
 .card.clickable.task {
     background-color: white;
-    width: 100%;
 }
 
 .card.clickable.task.delayed {
@@ -460,8 +459,8 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 10px;
     width: 100%;
-    gap: 100px;
     height: 70px;
     background-color: white;
     border-top: 2px solid var(--dark-grey-color);

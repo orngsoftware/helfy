@@ -4,7 +4,7 @@ const Learn = ({ learnData, userCompleted }: {learnData: any, userCompleted: boo
     const navigate = useNavigate()
     
     return (
-        <div className="col center" style={{width: 320}}>
+        <div className="col center-align">
             <div className="card clickable learn" 
                 onClick={
                     () => navigate(`/learn`, {

@@ -67,13 +67,13 @@ const LandingPage = () => {
                 <div className="col center-align" style={{textAlign: "center"}}>
                     <h1 style={{marginBottom: 10, marginTop: 0}}>improve your nutrition <WordSwitcher words={words} interval={1000} color="var(--dark-green-color)" />.</h1>
                     <p>Free, fun and gamified app to improve your nutrition</p>
-                    <div className="col" style={{gap: 10}}>
-                        <button style={{height: 45, width: 250}} className="btn-primary" onClick={() => navigate("/sign-up")}>Get started</button>
-                        <button style={{height: 45, width: 250}} className="btn-primary btn-outline" onClick={() => navigate("/dashboard")}>I have an account already</button>
+                    <div className="col" style={{gap: 10, width: 300}}>
+                        <button className="btn-primary" onClick={() => navigate("/sign-up")}>Get started</button>
+                        <button className="btn-primary btn-outline" onClick={() => navigate("/dashboard")}>I have an account already</button>
                     </div>
                 </div>
                 <div className="row-landing" style={{alignItems: "center"}}>
-                    <div className="col" style={{gap: 15}}>
+                    <div className="col landing" style={{gap: 15}}>
                         <h1 className="right-text" style={{marginBottom: 0, marginTop: 0}}><span style={{fontWeight: "normal"}}>learn</span> essentials</h1>
                         <p className="right-text">Helfy provides essential information about health that is relevant to regular people, <span style={{fontWeight: "bold"}}>
                             not</span> athletes, billioners or people with infinite time.</p>

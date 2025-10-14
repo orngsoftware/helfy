@@ -1,4 +1,4 @@
-import {Routes, Route} from 'react-router-dom'
+import {Routes, Route, useLocation} from 'react-router-dom'
 import LogInForm from './pages/auth/LogIn'
 import SignUpForm from './pages/auth/SignUp'
 import Dashboard from './pages/dashboard/Dashboard'
@@ -15,10 +15,14 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import PlanChoicePage from './pages/PlanChoice'
 import SavedLearnings from './pages/dashboard/SavedLearnings'
+import { AnimatePresence } from 'motion/react'
 
 const AppRoutes = () => {
+  const location = useLocation()
+
   return (
-    <Routes>
+    <AnimatePresence mode='wait'>
+    <Routes location={location} key={location.pathname}>
         <Route path='/' element={<LandingPage />} />
         <Route path='/log-in' element={<LogInForm />} />
         <Route path='/sign-up' element={<SignUpForm />} />
@@ -40,6 +44,7 @@ const AppRoutes = () => {
         <Route path='/plans' element={<PlanChoicePage />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
+    </AnimatePresence>
   )
 }
 

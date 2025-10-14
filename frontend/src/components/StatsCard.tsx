@@ -4,8 +4,8 @@ const StatsCard = (props: any) => {
     return (
         <div className="card" style={{
             backgroundColor: bgColor,
-            width: 87,
-            height: 90,
+            width: 100,
+            height: 100,
             padding: 5,
             alignItems: "center"
         }}>

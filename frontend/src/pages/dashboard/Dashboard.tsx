@@ -53,7 +53,7 @@ const Dashboard = () => {
         <Loading />
     ) : (
         <div className="container">
-            <div className="col" style={{marginTop: 10}}>
+            <div className="col">
                 <div className="row" style={{marginBottom: 5}}>
                     <div className="icon-row">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--black-color)" viewBox="0 0 256 256"><path d="M224,48V152a16,16,0,0,1-16,16H112v16a8,8,0,0,1-13.66,5.66l-24-24a8,8,0,0,1,0-11.32l24-24A8,8,0,0,1,112,136v16h96V48H96v8a8,8,0,0,1-16,0V48A16,16,0,0,1,96,32H208A16,16,0,0,1,224,48ZM168,192a8,8,0,0,0-8,8v8H48V104h96v16a8,8,0,0,0,13.66,5.66l24-24a8,8,0,0,0,0-11.32l-24-24A8,8,0,0,0,144,72V88H48a16,16,0,0,0-16,16V208a16,16,0,0,0,16,16H160a16,16,0,0,0,16-16v-8A8,8,0,0,0,168,192Z"></path></svg>
@@ -65,10 +65,7 @@ const Dashboard = () => {
                 </div>
                 <Divider color="var(--dark-grey-color)" />
                 <h3 style={{marginTop: 25}}>Learn</h3>
-                <div className="col center" style={{margin: 0}}>
-                    <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
-                </div>
-                
+                <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />                
                 <h3 style={{marginBottom: 15, marginTop: 25}}>Take action today</h3>
                 <div className="row" style={{marginBottom: 15, gap: 25}}>
                     <motion.div whileTap={{scale: 0.9}} 
@@ -105,7 +102,7 @@ const Dashboard = () => {
                 {activeTab === "habits" ? (
                     <motion.div
                     key="habits"
-                    className="col center"
+                    className="col"
                     style={{margin: 0, marginTop: 10}}
                     initial={{ opacity: 0}}
                     animate={{ opacity: 1}}
@@ -117,7 +114,7 @@ const Dashboard = () => {
                 ) : (
                     <motion.div
                     key="tasks"
-                    className="col center"
+                    className="col"
                     style={{margin: 0, marginTop: 10}}
                     initial={{ opacity: 0}}
                     animate={{ opacity: 1}}
