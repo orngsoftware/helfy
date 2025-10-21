@@ -4,7 +4,7 @@ import NavBar from "../../components/NavBar"
 const DashboardLayout = () => {
     return (
         <div className="container">
-            <div style={{width: "100%"}}>
+            <div className="col" style={{margin: 0}}>
                 <Outlet />
                 <NavBar />
             </div>

@@ -17,7 +17,8 @@ class HabitService:
             UserHabits.user_id == self.user.id,
             UserHabits.last_completed != date.today())
         habits = self.db.execute(select(Tasks).where(
-            Tasks.id.in_(user_habits)
+            Tasks.id.in_(user_habits),
+            Tasks.plan_id == self.user.current_plan.plan_id
         )).scalars().all()
         return habits
     
@@ -34,7 +35,7 @@ class HabitService:
         
         update_last_completed(self.db, self.user.id)
         increase_streak(self.db, self.user.id)
-        change_xp(self.db, task.xp*2, self.user.id, self.user.current_plan.id)
+        change_xp(self.db, task.xp*2, self.user.current_plan.id)
         self.db.commit()
         return None
     

@@ -11,7 +11,7 @@ const Companion = ({ stage, type, accessories }: {stage: number, type: string, a
                 ))}
                 <img className="companion-base" src={`/assets/companions/${type}${stage}.svg`}/>
             </div>
-            <ProgressBar maxValue={8} value={stage} valueName="Stage" />
+            <ProgressBar maxValue={8} value={stage} valueName="lvl" />
         </div>
     )
 }

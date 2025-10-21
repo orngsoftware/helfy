@@ -17,7 +17,7 @@ const ProgressBar = (props: any) => {
                 </motion.div>
             </div>
             {valueName ? 
-            (<p className="sm-heading" style={{width: 100}}>{`${valueName} ${value}/${maxValue}`}</p>)
+            (<p className="pixel-sans" style={{width: 50}}>{`${value} ${valueName}`}</p>)
             : ""}
         </div>
     )

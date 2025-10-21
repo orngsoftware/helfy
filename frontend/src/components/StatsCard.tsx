@@ -1,19 +1,15 @@
 const StatsCard = (props: any) => {
-    const { bgColor, color, title, data, iconD } = props
+    const { title, data, iconSrc } = props
 
     return (
         <div className="card" style={{
-            backgroundColor: bgColor,
             width: 100,
-            height: 100,
             padding: 5,
             alignItems: "center"
         }}>
-            <p className="sm-heading" style={{color: color}}>{title}</p>
-            <div className="icon-row">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill={color} viewBox="0 0 256 256"><path d={iconD}></path></svg>
-                <h2>{data}</h2>
-            </div>
+            <img src={iconSrc} style={{marginTop: 20}} height={24}/>
+            <h2 className="pixel-sans">{data}</h2>
+            <p style={{color: "var(--dark-grey-color)", marginBottom: 10, marginTop: 0}}>{title}</p>
         </div>
     )
 }

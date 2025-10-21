@@ -25,7 +25,8 @@ def get_plans(db: Annotated[Session, Depends(get_session)],
 def get_current_plan(user: Annotated[Users, Depends(get_current_user)]):
     current_user_plan = {
         "name": user.current_plan.plan.name,
-        "user_days": days(user.current_plan.started)
+        "user_days": days(user.current_plan.started),
+        "category": user.current_plan.plan.category
     }
     return {"ok": True, "current_plan": current_user_plan}
 

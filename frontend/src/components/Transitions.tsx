@@ -12,6 +12,7 @@ const BottomToTop = ({ children }: any) => {
             opacity: 1,
             transition: {duration: 0.3}
         }}
+        className="color-container"
         >
             {children}
         </motion.div>

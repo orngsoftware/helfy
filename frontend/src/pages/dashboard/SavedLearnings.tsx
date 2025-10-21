@@ -30,7 +30,7 @@ const SavedLearnings = () => {
     ) :
     (
         <div className="container">
-            <div className="col" style={{width: 350, gap: 15}}>
+            <div className="col" style={{gap: 15}}>
                 <h2>Saved learns</h2>
                 {savedLearnings.length === 0 ? (
                     <p>You haven't saved any Learnings!</p>
@@ -42,8 +42,8 @@ const SavedLearnings = () => {
                                     saved: learning.saved
                                 }
                         })}>
-                            <p className="sm-heading right-text" style={{marginTop: 10}}>{learning.learning.title}</p>
-                            <p style={{maxWidth: "90%"}} className="right-text">{learning.learning.tldr}</p>
+                            <p className="sm-heading" style={{marginTop: 10}}>{learning.learning.title}</p>
+                            <p style={{maxWidth: "90%"}}>{learning.learning.tldr}</p>
                         </div>
                     )))
                 }
