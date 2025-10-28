@@ -94,7 +94,7 @@ class Plans(Base):
     name: Mapped[str]
     category: Mapped[str]
     description: Mapped[str]
-    default_companion_type: Mapped[str]
+    base_companion: Mapped[str]
 
     user_plans: Mapped[List["UserPlans"]] = relationship(back_populates="plan")
     accessories: Mapped[List["Accessories"]] = relationship(back_populates="plan")
@@ -153,11 +153,8 @@ class Texts(Base):
 class Companions(Base):
     __tablename__="companions"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(default="My Helfy")
-    stage: Mapped[int] = mapped_column(default=1)
-    type: Mapped[str] = mapped_column(default="plant")
-
     accessories: Mapped[List["CompanionAccessories"]] = relationship(back_populates="companion")
+    url: Mapped[str] = mapped_column(nullable=True)
 
     user_plan_id: Mapped[int] = mapped_column(ForeignKey("user_plans.id"))
     user_plan: Mapped["UserPlans"] = relationship(back_populates="companion")
@@ -168,6 +165,7 @@ class Accessories(Base):
     name: Mapped[str]
     price: Mapped[int]
     level: Mapped[int] = mapped_column(nullable=True)
+    url: Mapped[str] = mapped_column(nullable=True)
 
     plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
     plan: Mapped["Plans"] = relationship(back_populates="accessories")

@@ -20,6 +20,8 @@ class Settings(BaseSettings):
 
     oauth_google_client_id: str
     oauth_google_client_secret: str
+
+    aws_s3_bucket_name: str
     
 @lru_cache
 def get_settings():

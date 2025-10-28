@@ -16,6 +16,7 @@ export const FlyingStar = (props: any) => {
     const { height } = props
     return (
         <img 
+            className="pixelated-img"
             src="/assets/icons/flyingstar.png" 
             style={{height: height}}
         />

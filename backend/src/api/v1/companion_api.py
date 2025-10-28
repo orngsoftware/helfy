@@ -12,16 +12,16 @@ router = APIRouter(prefix="/companion", tags=["companion"])
 
 @router.get("/")
 def get_companion(user: Annotated[Users, Depends(get_current_user)]):
-    return {"ok": True, "companion": user.current_plan.companion}
+    return {"ok": True, "base_companion_url": user.current_plan.companion.url}
 
 @router.get("/accessories")
 def get_accessories(db: Annotated[Session, Depends(get_session)], 
                     user: Annotated[Users, Depends(get_current_user)], 
                     inventory: bool | None = None):
+    service = CompanionService(db, user)
     if inventory:
-        accessories = user.current_plan.companion.accessories
+        accessories = service.get_inventory()
     else:
-        service = CompanionService(db, user)
         accessories = service.get_accessories()
     return {"ok": True, "accessories": accessories}
 
@@ -37,14 +37,6 @@ def buy_accessory(db: Annotated[Session, Depends(get_session)],
     except DuplicateError:
         raise HTTPException(status_code=400, 
                             detail="User has purchased this accessory already")
-    return {"ok": True}
-
-@router.post("/change/{companion_type}")
-def change_companion(db: Annotated[Session, Depends(get_session)], 
-                          user: Annotated[Users, Depends(get_current_user)],
-                          companion_type: str):
-    companion = CompanionService(db, user)
-    companion.change_companion_type(companion_type)
     return {"ok": True}
 
 @router.patch("/accessories/toggle/{accessory_id}")

@@ -14,13 +14,12 @@ const CompanionPage = () => {
         learning_xp: 0,
         streak: 0,
         status: "lost",
-        stage: 0
-    })
+        })
     const [isStoreOpen, setOpen] = useState(false)
     const [isInventoryOpen, setInventoryOpen] = useState(false)
     const [isLoading, setLoading] = useState(true)
 
-    const [companionType, setCompanionType] = useState("")
+    const [companionURL, setCompanionURL] = useState("")
     const [accessories, setAccessories] = useState<object[]>([])
     const [storeItems, setStoreItems] = useState([])
 
@@ -40,10 +39,9 @@ const CompanionPage = () => {
                 xp: xpResponse.data.xp,
                 learning_xp: learningXPResponse.data.xp,
                 streak: streakResponse.data.result.streak,
-                status: streakResponse.data.result.status,
-                stage: companionResponse.data.companion.stage
+                status: streakResponse.data.result.status
             })
-            setCompanionType(companionResponse.data.companion.type)
+            setCompanionURL(companionResponse.data.base_companion_url)
             setAccessories(inventoryResponse.data.accessories)
             setStoreItems(storeResponse.data.accessories)
         } catch(error: any) {
@@ -54,12 +52,12 @@ const CompanionPage = () => {
         return;
     }
 
-    const handleBuy = (itemID: number) => {
+    const handleBuy = (itemID: number, itemURL: string) => {
         setStoreItems(prev => prev.filter((i: any) => i.id !== itemID));
 
         setAccessories(prev => [
             ...prev,
-            { accessory_id: itemID, shown: true }
+            { accessory_id: itemID, url: itemURL, shown: true }
         ]);
     };
 
@@ -73,16 +71,6 @@ const CompanionPage = () => {
         );
     };
 
-    async function changeCompanionType() {
-        try {
-            const newType = companionType === "plant" ? "cactus" : "plant"
-            await axiosInstance.post(`/companion/change/${newType}`)
-            setCompanionType(newType)
-        } catch(error: any) {
-            console.log("Error changing companion type: ", error)
-        }
-        return;
-    }
 
     async function logOut() {
         try {
@@ -119,14 +107,11 @@ const CompanionPage = () => {
                     iconSrc={data.status === "kept" ? "/assets/icons/lightning.png" : "/assets/icons/cloudicon.png"}
                      />
                 </div>
-                <Companion stage={data.stage} type={companionType} accessories={accessories}/>
+                <Companion companionSRC={companionURL} accessories={accessories}/>
                 <div className="col" style={{gap: 10, maxWidth: "100%"}}>
                     <div className="row" style={{gap: 10, margin: 0, flexWrap: "wrap", justifyContent: "center", width: "100%"}}>
                         <button className="btn-primary btn-white" style={{width: "fit-content", padding: 15}} onClick={() => setOpen(true)}>
                             <p className="pixel-sans">Shop</p>
-                        </button>
-                        <button className="btn-primary btn-white" style={{width: "fit-content", padding: 15}} onClick={changeCompanionType}>
-                            <p className="pixel-sans">Types</p>
                         </button>
                         <button className="btn-primary btn-white" style={{width: "fit-content", padding: 15}} onClick={() => setInventoryOpen(true)}>
                             <p className="pixel-sans">Inventory</p>

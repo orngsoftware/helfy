@@ -1,6 +1,6 @@
 import { useState } from "react"
 import axiosInstance from "../lib/apiClient"
-import { FlyingStar, TickIcon } from "./Icons"
+import { FlyingStar } from "./Icons"
 import { motion, AnimatePresence } from "motion/react"
 
 export const SmallPopUp = (props: any) => {
@@ -29,10 +29,10 @@ export const StorePopUp = (props: any) => {
     const { closePopUp, title, items, onBuy } = props
     const [isOpen, setOpen] = useState(false)
 
-    async function buyItem(itemID: number) {
+    async function buyItem(item: any) {
         try {
-            await axiosInstance.post(`/companion/accessories/buy/${itemID}`)
-            onBuy(itemID)
+            await axiosInstance.post(`/companion/accessories/buy/${item.id}`)
+            onBuy(item.id, item.url)
         } catch(error: any) {
             if (error.response?.status === 400) {
                 setOpen(true)
@@ -56,8 +56,9 @@ export const StorePopUp = (props: any) => {
                         <p>You have purchased all accessories</p>
                     ) : (
                         items.map((item: any) =>  (
-                        <div className="card" onClick={() => buyItem(item.id)} style={{cursor: "pointer", border: "2px solid var(--grey-color)", alignItems: "center"}}>
-                            <img width={80} height={80} src={`/assets/accessories/previews/${item.id}_preview.png`} />
+                        <div className="card store-element" onClick={() => buyItem(item)} >
+                            <p style={{color: "var(--dark-grey-color)"}}>{item.name}</p>
+                            <img width={80} height={80} className="pixelated-img" src={item.url} />
                             <div className="icon-row">
                                 <FlyingStar width={16} height={16} />
                                 <p className="pixel-sans">{item.price}</p>
@@ -92,13 +93,8 @@ export const InventoryPopUp = ({ closePopUp, items, onChange }: any) => {
                         <p>You don't have any items</p>
                     ) : (
                         items.map((item: any) =>  (
-                        <div className="card" onClick={() => changeVisibility(item)} style={{cursor: "pointer", border: item.shown ? "3px solid var(--dark-blue-color)" : "2px solid var(--dark-grey-color)", alignItems: "center"}}>
-                            {item.shown ? (
-                                <div className="circle" style={{backgroundColor: "var(--dark-blue-color)"}}>
-                                    <TickIcon width={15} height={15} color="white" />
-                                </div>
-                            ) : ""}
-                            <img width={80} height={80} src={`/assets/accessories/previews/${item.accessory_id}_preview.png`} />
+                        <div className="card store-element" onClick={() => changeVisibility(item)} style={{border: item.shown ? "3px solid var(--dark-blue-color)" : "2px solid var(--grey-color)", alignItems: "center"}}>
+                            <img width={80} height={80} className="pixelated-img" src={item.url} />
                         </div>)
                     ))}
                 </div>
