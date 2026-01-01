@@ -2,7 +2,7 @@ from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import BYTEA
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import List
 
 class UserTasks(Base):
@@ -46,8 +46,12 @@ class Users(Base):
     password: Mapped[bytes] = mapped_column(BYTEA)
     auth_provider: Mapped[str] = mapped_column(default="local", nullable=True)
 
-    last_completed: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days=1))
-    last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days=1))
+    stripe_customer_id: Mapped[str] = mapped_column(nullable=True)
+    stripe_subscription_id: Mapped[str] = mapped_column(nullable=True)
+    subscription_status: Mapped[str] = mapped_column(default="unpaid")
+    subscription_current_period_end: Mapped[datetime] = mapped_column(nullable=True)
+
+    last_completed: Mapped[date] = mapped_column(nullable=True)
     streak: Mapped[int] = mapped_column(nullable=True, default=0)
 
     completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
@@ -112,6 +116,7 @@ class UserHabits(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     habit_created: Mapped[date]
     last_completed: Mapped[date] = mapped_column(nullable=True)
+    streak: Mapped[int] = mapped_column(default=0)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["Users"] = relationship(back_populates="habits")

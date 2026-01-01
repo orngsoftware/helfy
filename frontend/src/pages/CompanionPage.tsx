@@ -10,11 +10,11 @@ import { clearAccessToken } from "../lib/tokenManager"
 
 const CompanionPage = () => {
     const [data, setData] = useState({
-        xp: 0,
         learning_xp: 0,
         streak: 0,
-        status: "lost",
+        status: "lost"
         })
+    const [xp, setXp] = useState(0)
     const [isStoreOpen, setOpen] = useState(false)
     const [isInventoryOpen, setInventoryOpen] = useState(false)
     const [isLoading, setLoading] = useState(true)
@@ -36,11 +36,11 @@ const CompanionPage = () => {
             const companionResponse = await axiosInstance.get("/companion")
 
             setData({
-                xp: xpResponse.data.xp,
                 learning_xp: learningXPResponse.data.xp,
                 streak: streakResponse.data.result.streak,
                 status: streakResponse.data.result.status
             })
+            setXp(xpResponse.data.xp)
             setCompanionURL(companionResponse.data.base_companion_url)
             setAccessories(inventoryResponse.data.accessories)
             setStoreItems(storeResponse.data.accessories)
@@ -52,8 +52,9 @@ const CompanionPage = () => {
         return;
     }
 
-    const handleBuy = (itemID: number, itemURL: string) => {
+    const handleBuy = (itemID: number, itemURL: string, price: number) => {
         setStoreItems(prev => prev.filter((i: any) => i.id !== itemID));
+        setXp(prev => prev - price)
 
         setAccessories(prev => [
             ...prev,
@@ -95,7 +96,7 @@ const CompanionPage = () => {
                 <div className="row">
                     <StatsCard 
                     title="Action XP"
-                    data={data.xp}
+                    data={xp}
                     iconSrc="/assets/icons/flyingstar.png" />
                     <StatsCard
                     title="Learn XP"
@@ -104,7 +105,7 @@ const CompanionPage = () => {
                     <StatsCard
                     title="Streak"
                     data={data.streak}
-                    iconSrc={data.status === "kept" ? "/assets/icons/lightning.png" : "/assets/icons/cloudicon.png"}
+                    iconSrc={data.status === "active" ? "/assets/icons/lightning.png" : "/assets/icons/cloudicon.png"}
                      />
                 </div>
                 <Companion companionSRC={companionURL} accessories={accessories}/>

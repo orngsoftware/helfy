@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     oauth_google_client_secret: str
 
     aws_s3_bucket_name: str
+
+    stripe_secret: str
+    stripe_plus_product_id: str
+    stripe_endpoint_secret: str
     
 @lru_cache
 def get_settings():

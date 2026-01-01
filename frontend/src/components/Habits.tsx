@@ -11,7 +11,11 @@ const Habits = ({ habitsData }: { habitsData: any}) => {
                 </div>
             ) : (
                 <div className="card clickable" style={{border: "2px solid var(--yellow-color)"}} onClick={() => navigate("/habit", {state: habitsData})}>
-                    <p className="sm-heading">{habitsData.name}</p>
+                    <div className="row">
+                        <p className="sm-heading">{habitsData.name}</p>
+                        <div className="tag right-tag" style={{backgroundColor: "var(--yellow-color)", color: "var(--dark-yellow-color)"}}><p>Streak: {habitsData.streak}</p></div>
+                    </div>
+                    
                     <p style={{marginBottom: 10}}>{habitsData.description}</p>
                     <div className="row">
                         <div className="icon-row w-bg w-outline" style={{borderColor: "var(--grey-color)"}}>

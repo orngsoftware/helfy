@@ -1,13 +1,16 @@
 from .schemas import UserSchema, TokenSchema, CodeSchema
+from stripe import Webhook, error
+from .config import get_settings
 from .database import get_session
 from .models import Users
-from .services.users import create_user, get_user, calculate_streak
+from .services.users import create_user, get_user, get_streak_w_status, update_streak
 from .auth import utils as au
 from .auth.oauth_google import generate_google_auth_redirect_uri, handle_code
 from .api.v1 import tasks_api, learnings_api, companion_api, plans_api
+from .services.subscription import create_plus_checkout_session, create_stripe_customer, handle_stripe_event
 from .dependecies import get_current_user
 from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, HTTPException, Response, Cookie, status
+from fastapi import FastAPI, Depends, HTTPException, Response, Cookie, status, Request
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
@@ -138,11 +141,52 @@ def google_callback(db: Annotated[Session, Depends(get_session)], code: CodeSche
                         httponly=True, secure=False, samesite="lax", max_age=30*24*60*60)
     return {"ok": True, "token": TokenSchema(access_token=access_token, token_type="bearer")}
 
+@app.post("/create-checkout-session")
+def new_checkout_session(db: Annotated[Session, Depends(get_session)],
+                         user: Annotated[Users, Depends(get_current_user)]):
+    if user.subscription_status == "active" or user.subscription_status == "trialing":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is already subscribed")
+    
+    if not user.stripe_customer_id:
+        create_stripe_customer(db, user)
+
+    session_url = create_plus_checkout_session(user.stripe_customer_id)
+    return {"ok": True, "session_url": session_url}
+
+@app.post("/webhook/stripe")
+async def stripe_webhook(db: Annotated[Session, Depends(get_session)], request: Request):
+    payload = await request.body()
+    stripe_signature = request.headers.get("stripe-signature")
+    endpoint_secret = get_settings().stripe_endpoint_secret
+
+    try:
+        event = Webhook.construct_event(
+            payload=payload,
+            sig_header=stripe_signature,
+            secret=endpoint_secret
+        )
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid payload")
+    except error.SignatureVerificationError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid signature")
+    
+    if event:
+        try:
+            handle_stripe_event(db, event)
+        except HTTPException as e:
+            raise e
+    return {"ok": True}
+
 @app.get("/users/stats/streak")
-def get_streak(db: Annotated[Session, Depends(get_session)],
-               user: Annotated[Users, Depends(get_current_user)]):
-    streak = calculate_streak(db, user.id)
+def get_streak(user: Annotated[Users, Depends(get_current_user)]):
+    streak = get_streak_w_status(user)
     return {"ok": True, "result": streak}
+
+@app.post("/users/stats/streak/update")
+def change_streak(db: Annotated[Session, Depends(get_session)],
+               user: Annotated[Users, Depends(get_current_user)]):
+    result = update_streak(db, user)
+    return {"ok": True, "result": result}
 
 @app.get("/users/stats/xp")
 def get_xp(user: Annotated[Users, Depends(get_current_user)], learning: bool | None = None):

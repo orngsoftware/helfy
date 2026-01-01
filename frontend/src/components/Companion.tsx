@@ -1,5 +1,3 @@
-import ProgressBar from "./ProgressBar";
-
 const Companion = ({ accessories, companionSRC }: {accessories: Array<object>, companionSRC: string}) => {
     return (
         <div className="col center">

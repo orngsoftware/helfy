@@ -16,14 +16,22 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 def get_tasks(db: Annotated[Session, Depends(get_session)], 
               user: Annotated[Users, Depends(get_current_user)]):
     service = TaskService(db, user)
+<<<<<<< HEAD
     user_day = days(user.current_plan.started)
+=======
+    user_day = days(user.started)
+>>>>>>> origin/main
     return {"ok": True, "tasks": service.get_uncompleted_tasks(user_day)}
 
 @router.get("/habits")
 def get_habits(db: Annotated[Session, Depends(get_session)], 
               user: Annotated[Users, Depends(get_current_user)]):
     service = HabitService(db, user)
+<<<<<<< HEAD
     service.create_habits_auto(days(user.current_plan.started))
+=======
+    service.create_habits_auto(days(user.started))
+>>>>>>> origin/main
     return {"ok": True, "habits": service.get_uncompleted_habits()}
 
 @router.post("/habits/mark/{task_id}")
@@ -58,7 +66,11 @@ def complete_task_or_habit(db: Annotated[Session, Depends(get_session)],
             service.complete_habit(task_id)
         else:
             service = TaskService(db, user)
+<<<<<<< HEAD
             service.complete_task(task_id, days(user.current_plan.started))
+=======
+            service.complete_task(task_id, days(user.started))
+>>>>>>> origin/main
     except DuplicateError:
         raise HTTPException(status_code=400, detail="This task is already completed by the user")
     return {"ok": True}

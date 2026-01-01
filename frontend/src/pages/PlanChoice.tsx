@@ -3,11 +3,19 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../lib/apiClient";
 import Loading from "../components/Loading";
 import { ArrowBack } from "../components/Icons";
+import { SmallPopUp, UpgradePopUp } from "../components/PopUps";
 
 const PlanChoicePage = () => {
     const navigate = useNavigate()
     const [isLoading, setLoading] = useState(true)
+    const [isUpgradeOpen, setIsUpgradeOpen] = useState(false)
+    const [isDisclaimerClosed, setDisclaimerClosed] = useState(localStorage.getItem("disclaimer_opened"))
     const [data, setData] = useState([])
+
+    function handleDisclaimerClose() {
+        localStorage.setItem("disclaimer_opened", "t")
+        setDisclaimerClosed("t")
+    }
 
     async function fetchData() {
         setLoading(true)
@@ -27,6 +35,9 @@ const PlanChoicePage = () => {
             await axiosInstance.post(`/plans/start/${planID}`)
             navigate("/dashboard")
         } catch(error: any) {
+            if (error.response?.status === 403) {
+                setIsUpgradeOpen(true)
+            }
             console.error("Error starting new plan: ", error)
         }
     }
@@ -62,6 +73,17 @@ const PlanChoicePage = () => {
                         </div>
                     )
                 ))}
+                {isUpgradeOpen && (
+                    <UpgradePopUp closePopUp={() => setIsUpgradeOpen(false)} />
+                )}
+                {isDisclaimerClosed !== "t" && (
+                    <SmallPopUp 
+                    title="Disclaimer" 
+                    subTitle="Helfy provides information for general wellness and habit improvement purposes. It is not a substitute for professional medical advice, diagnosis, or treatment."
+                    btnText="Alright!"
+                    closePopUp={handleDisclaimerClose} 
+                    />
+                )}
                 <button className="btn-primary to-bottom" onClick={() => navigate(-1)}>
                     <ArrowBack color="white" width="24" height="24" />
                     Go back

@@ -1,15 +1,23 @@
 from sqlalchemy.orm import Session
+<<<<<<< HEAD
 from sqlalchemy import select, desc, func, delete
 from sqlalchemy.exc import NoResultFound
 from ..exceptions import DuplicateError
-from .users import increase_streak, change_xp, update_last_completed
+from .users import change_xp
 from ..models import UserCompletedLearnings, Learnings, Users, Texts, SavedLearnings
+=======
+from sqlalchemy import select, desc
+from ..exceptions import DuplicateError
+from .users import increase_streak, change_xp, update_last_completed
+from ..models import UserCompletedLearnings, Learnings, Users
 from .companions import CompanionService
+>>>>>>> origin/main
 
 class LearnService:
     def __init__(self, db: Session, user: Users):
         self.db = db
         self.user = user
+<<<<<<< HEAD
     
     def _learn_max_text_pos(self, learning_id: int) -> int:
         """Returns maximum position 
@@ -109,6 +117,32 @@ class LearnService:
                 learning_info[0], 
                 learning_info[1], 
                 learning_info[2])
+=======
+
+    def get_learning_day(self, user_day: int) -> Learnings | None:
+        """Gets learning relevant for the day"""
+        result = self.db.execute(select(Learnings)
+            .where(Learnings.day <= user_day)
+            .order_by(desc(Learnings.day))
+            .limit(1)
+        ).scalars().first()
+        return result
+
+    def get_learning_short(self, user_day: int) -> tuple[Learnings, str] | None:
+        """Returns tldr, title and xp of the learning, and whether user has completed it"""
+        learning = self.db.execute(select(Learnings)
+            .where(Learnings.day <= user_day)
+            .order_by(desc(Learnings.day))
+            .limit(1)
+        ).scalars().first()
+        if not learning:
+            return None
+        
+        user_completed_learnings = [l.learning_id for l in self.user.completed_learnings]
+        completed = True if learning.id in user_completed_learnings else False
+
+        return (learning, completed)
+>>>>>>> origin/main
     
     def learning_complete(self, learning_id: int) -> None:
         user_completed_learnings = [l.learning_id for l in self.user.completed_learnings]
@@ -119,16 +153,25 @@ class LearnService:
         xp = self.db.execute(select(Learnings.learning_xp).where(
             Learnings.id == learning_id)).scalar_one_or_none()
         
-        update_last_completed(self.db, self.user.id)
-        increase_streak(self.db, self.user.id)
+<<<<<<< HEAD
         change_xp(self.db,
                   xp,
                   self.user.current_plan.id, 
                   learning=True)
+=======
+        update_last_completed(self.db, self.user.id)
+        increase_streak(self.db, self.user.id)
+        self.db.execute(change_xp(xp, self.user.id, learning=True))
+>>>>>>> origin/main
         new_complete = UserCompletedLearnings(
             user_id=self.user.id,
             learning_id=learning_id
         )
+<<<<<<< HEAD
+=======
+        companion = CompanionService(self.db, self.user)
+        companion.update_stage()
+>>>>>>> origin/main
         self.db.add(new_complete)
         self.db.commit()
         return None

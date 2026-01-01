@@ -7,6 +7,7 @@ import axiosInstance from "../../lib/apiClient";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import SmallStreak from "../../components/Streak";
+import { SubscribeButton } from "../../components/StripeComponents";
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState("habits")
@@ -19,7 +20,8 @@ const Dashboard = () => {
         streak: 0,
         streakStatus: "lost",
         userCompletedLearning: true,
-        current_plan: { name: "", user_days: "", category: ""}
+        current_plan: { name: "", user_days: "", category: ""},
+        is_user_paid: false
     })
     const [currentTaskID, setCurrentTaskID] = useState(0)
     const [headerStyling, setHeaderStyling] = useState({bgColor: "", highlightColor: ""})
@@ -40,7 +42,8 @@ const Dashboard = () => {
                 streak: streakResponse.data.result.streak,
                 streakStatus: streakResponse.data.result.status,
                 userCompletedLearning: learnResponse.data.completed,
-                current_plan: planResponse.data.current_plan
+                current_plan: planResponse.data.current_plan,
+                is_user_paid: planResponse.data.current_plan.is_user_paid
             })
         } catch(error: any) {
             console.error("Error fetching data: ", error)
@@ -155,6 +158,9 @@ const Dashboard = () => {
                 </AnimatePresence>
                 <h3>Learn</h3>
                 <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
+                {data.is_user_paid === false ? (
+                    <SubscribeButton bgClass="upgrade-bg" errorNavigate="/dashboard">Upgrade to Plus</SubscribeButton>
+                ): ""}
             </div>
         </div>
     )

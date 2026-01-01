@@ -1,7 +1,8 @@
-import { useLocation, useNavigate } from "react-router-dom"
-import { motion } from "motion/react"
+import { useLocation, useNavigate, Link } from "react-router-dom"
+import { motion, AnimatePresence } from "motion/react"
+import { useState } from "react"
 
-const NavBar = () => {
+export const NavBar = () => {
     const navigate = useNavigate()
     const location = useLocation()
     
@@ -41,5 +42,36 @@ const BounceAnimation = ({children} : {children: any}) => {
     )
 }
 
+export const NavBarLanding = () => {
+    const navigate = useNavigate()
+    const [isNavOpen, setNavOpen] = useState(false)
 
-export default NavBar;
+    return (
+        <div className="navbar navbar-landing">
+            <img style={{width: 32, marginLeft: 25}} src="/assets/icons/helfy_icon_black.svg" />
+            <svg className="list-icon clickable" onClick={() => setNavOpen(!isNavOpen)} xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--black-color)" viewBox="0 0 256 256"><path d={isNavOpen ? "M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" : "M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"}></path></svg>
+            {isNavOpen && (
+                <AnimatePresence>
+                    <motion.div 
+                    initial={{scale: 0.1}}
+                    animate={{
+                        scale: 1,
+                        transition: {duration: 0.3, type: "spring", stiffness: 200, damping: 20}
+                    }} className="card nav-mobile">
+                        <Link className="navbar-landing-link" to="/">Home</Link>
+                        <Link className="navbar-landing-link" to="/how-it-works">How it works</Link>
+                        <Link className="navbar-landing-link" to="/pricing">Pricing</Link>
+                    </motion.div>
+                </AnimatePresence>
+            )}
+            
+            <Link className="navbar-landing-link desktop" to="/">Home</Link>
+            <Link className="navbar-landing-link desktop" to="/how-it-works">How it works</Link>
+            <Link className="navbar-landing-link desktop" to="/pricing">Pricing</Link>
+            <div className="row to-right" style={{width: 185, gap: 15, marginRight: 10}}>
+                <Link className="navbar-landing-link" to="/log-in">Log in</Link>
+                <button className="btn-primary" style={{maxWidth: 125}} onClick={() => navigate("/sign-up")}>Sign up</button> 
+            </div>
+        </div>
+    )
+}

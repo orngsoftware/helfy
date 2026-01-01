@@ -17,6 +17,10 @@ const TaskDescriptionRow = (props: any) => {
                         <p className="pixel-sans">+ {task.delayed ? task.delayed_xp : xp} XP</p>
                     </div>
                 </div>
+                {isHabit ? (
+                <div className="pill-container">
+                    <p className="pixel-sans">Streak: {task.streak}</p>
+                </div>) : ""}
                 <div className="pill-container" style={{backgroundColor: difficultyColor(task.difficulty)}}>
                     <p className="pixel-sans">{task.difficulty}/5</p>
                 </div>

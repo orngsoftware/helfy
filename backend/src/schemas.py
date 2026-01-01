@@ -11,7 +11,7 @@ class UserSchema(BaseModel):
 
 class StreakSchema(BaseModel):
     streak: int
-    status: Literal['kept', 'same', 'lost']
+    status: Literal['active', 'inactive']
 
 class CodeSchema(BaseModel):
     code: str
