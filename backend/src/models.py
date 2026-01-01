@@ -2,7 +2,7 @@ from src.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import BYTEA
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import List
 
 class UserTasks(Base):
@@ -22,6 +22,14 @@ class UserCompletedLearnings(Base):
     user: Mapped["Users"] = relationship(back_populates="completed_learnings")
     learning: Mapped["Learnings"] = relationship()
 
+class SavedLearnings(Base):
+    __tablename__="saved_learnings"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    learning_id: Mapped[int] = mapped_column(ForeignKey("learnings.id"), primary_key=True)
+
+    user: Mapped["Users"] = relationship(back_populates="saved_learnings")
+    learning: Mapped["Learnings"] = relationship()
+
 class CompanionAccessories(Base):
     __tablename__ = "companion_accessories"
     companion_id: Mapped[int] = mapped_column(ForeignKey("companions.id"), primary_key=True)
@@ -38,12 +46,17 @@ class Users(Base):
     password: Mapped[bytes] = mapped_column(BYTEA)
     auth_provider: Mapped[str] = mapped_column(default="local", nullable=True)
 
-    last_completed: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days=1))
-    last_streak_update: Mapped[date] = mapped_column(nullable=True, default=date.today() - timedelta(days=1))
+    stripe_customer_id: Mapped[str] = mapped_column(nullable=True)
+    stripe_subscription_id: Mapped[str] = mapped_column(nullable=True)
+    subscription_status: Mapped[str] = mapped_column(default="unpaid")
+    subscription_current_period_end: Mapped[datetime] = mapped_column(nullable=True)
+
+    last_completed: Mapped[date] = mapped_column(nullable=True)
     streak: Mapped[int] = mapped_column(nullable=True, default=0)
 
     completed_tasks: Mapped[List["UserTasks"]] = relationship(back_populates="user")
     completed_learnings: Mapped[List["UserCompletedLearnings"]] = relationship(back_populates="user")
+    saved_learnings: Mapped[List["SavedLearnings"]] = relationship(back_populates="user")
 
     habits: Mapped[List["UserHabits"]] = relationship(back_populates="user")
 
@@ -85,7 +98,7 @@ class Plans(Base):
     name: Mapped[str]
     category: Mapped[str]
     description: Mapped[str]
-    default_companion_type: Mapped[str]
+    base_companion: Mapped[str]
 
     user_plans: Mapped[List["UserPlans"]] = relationship(back_populates="plan")
     accessories: Mapped[List["Accessories"]] = relationship(back_populates="plan")
@@ -103,6 +116,7 @@ class UserHabits(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     habit_created: Mapped[date]
     last_completed: Mapped[date] = mapped_column(nullable=True)
+    streak: Mapped[int] = mapped_column(default=0)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["Users"] = relationship(back_populates="habits")
@@ -126,20 +140,26 @@ class Learnings(Base):
     __tablename__="learnings"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
-    tldr: Mapped[str]
+    tldr: Mapped[str] = mapped_column(nullable=True)
     day: Mapped[int]
-    body: Mapped[str]
     learning_xp: Mapped[int]
     plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+
+class Texts(Base):
+    __tablename__="texts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(nullable=True)
+    position: Mapped[int]
+    learning_id: Mapped[int] = mapped_column(ForeignKey("learnings.id"))
+    learning: Mapped["Learnings"] = relationship()
+    is_last: Mapped[bool]
+    content: Mapped[str]
 
 class Companions(Base):
     __tablename__="companions"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(default="My Helfy")
-    stage: Mapped[int] = mapped_column(default=1)
-    type: Mapped[str] = mapped_column(default="plant")
-
     accessories: Mapped[List["CompanionAccessories"]] = relationship(back_populates="companion")
+    url: Mapped[str] = mapped_column(nullable=True)
 
     user_plan_id: Mapped[int] = mapped_column(ForeignKey("user_plans.id"))
     user_plan: Mapped["UserPlans"] = relationship(back_populates="companion")
@@ -150,6 +170,10 @@ class Accessories(Base):
     name: Mapped[str]
     price: Mapped[int]
     level: Mapped[int] = mapped_column(nullable=True)
+    url: Mapped[str] = mapped_column(nullable=True)
+
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+    plan: Mapped["Plans"] = relationship(back_populates="accessories")
 
     plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
     plan: Mapped["Plans"] = relationship(back_populates="accessories")

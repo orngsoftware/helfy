@@ -1,8 +1,8 @@
 import datetime
-from sqlalchemy import select, update, Update
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from ..models import Users, UserPlans
-from ..schemas import UserSchema, StreakSchema
+from ..schemas import UserSchema
 from ..auth.utils import hash_password
 
 def get_today_date() -> datetime.date:
@@ -35,6 +35,12 @@ def days(start_date: datetime.date) -> int:
     dif = get_today_date() - start_date
     return dif.days
 
+def is_plus(user: Users) -> bool:
+    """Determines whether user has active plus subscription"""
+    if user.subscription_status == "active" or user.subscription_status == "trialing":
+        return True
+    return False
+
 def change_xp(db: Session, 
               amount: int,
               current_plan_id: int,
@@ -52,39 +58,37 @@ def change_xp(db: Session,
     db.commit()
     return None
 
-def update_last_completed(db: Session, user_id: int) -> None:
-    """Updates last_completed date of a user to today"""
-    user = get_user(db, user_id=user_id)
-    if user.last_completed != get_today_date():
-        db.execute(update(Users).where(Users.id == user_id).values(
+def get_streak_w_status(user: Users) -> dict:
+    if user.last_completed == get_today_date(): 
+        # user has already completed something today
+        return {"streak": user.streak, "status": "active"}
+    elif user.last_completed ==  get_today_date() - datetime.timedelta(days=1):
+        # user has not completed anything today
+        return {"streak": user.streak, "status": "inactive"}
+    else:
+        # user has not completed anything today nor yesterday
+        return {"streak": 0, "status": "inactive"}
+
+def update_streak(db: Session, user: Users) -> dict:
+    """Updates User streak and returns
+    - streak: int , current streak of the user
+    - celebrate: bool , should it be celebrated
+    """
+    if user.last_completed == get_today_date():
+        return {"streak": user.streak, "celebrate": False}
+    if user.last_completed == get_today_date() - datetime.timedelta(days=1):
+        db.execute(update(Users).where(Users.id == user.id).values(
+            streak=Users.streak + 1,
             last_completed=get_today_date()
         ))
         db.commit()
-    return None
-
-def increase_streak(db: Session, user_id: int) -> None:
-    user = get_user(db, user_id=user_id)
-    if user.last_completed == get_today_date() and user.last_streak_update != get_today_date():
-        db.execute(update(Users).where(Users.id == user_id).values(
-            streak=Users.streak + 1,
-            last_streak_update=get_today_date()
-        ))
-        db.commit()
-    return None
-
-def calculate_streak(db: Session, user_id: int) -> StreakSchema:
-    user = get_user(db, user_id=user_id)
-    if user.last_completed == get_today_date() and user.last_streak_update == get_today_date():
-        return {"streak": user.streak, "status": "kept"}
-    elif user.last_completed == get_today_date() - datetime.timedelta(days = 1):
-        return {"streak": user.streak, "status": "same"}
-    else:
-        db.execute(update(Users).where(Users.id == user_id).values(
-            streak=0,
-            last_streak_update=get_today_date()
-        ))
-        db.commit()
-        return {"streak": 0, "status": "lost"}
+        return {"streak": user.streak, "celebrate": True}
+    db.execute(update(Users).where(Users.id == user.id).values(
+        streak=1,
+        last_completed=get_today_date()
+    ))
+    db.commit()
+    return {"streak": user.streak, "celebrate": True}
 
 def update_current_plan(db: Session, user_id: int, plan_id: int) -> None:
     new_current_plan = db.execute(select(UserPlans.id).where(

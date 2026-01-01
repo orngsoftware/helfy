@@ -1,17 +1,14 @@
-import ProgressBar from "./ProgressBar";
-
-const Companion = ({ stage, type, accessories }: {stage: number, type: string, accessories: Array<object>}) => {
+const Companion = ({ accessories, companionSRC }: {accessories: Array<object>, companionSRC: string}) => {
     return (
         <div className="col center">
             <div className="companion">
                 {accessories.map((item: any) => (
-                    item.shown ?
-                    <img className="companion-element" style={{zIndex: item.level}} src={`/assets/accessories/${item.accessory_id}.svg`}/>
-                    : ""
+                    item.shown ? (
+                    <img className="companion-element" style={{zIndex: item.level}} src={item.url}/>
+                    ) : ""
                 ))}
-                <img className="companion-base" src={`/assets/companions/${type}${stage}.svg`}/>
+                <img className="companion-base" src={companionSRC}/> 
             </div>
-            <ProgressBar maxValue={8} value={stage} valueName="Stage" />
         </div>
     )
 }

@@ -1,36 +1,76 @@
 import { useLocation, useNavigate } from "react-router-dom"
+import { ArrowForward } from "./Icons"
+import { useEffect, useState } from "react"
+import { animate, motion } from "motion/react"
+import axiosInstance from "../lib/apiClient"
 
 const Done = (props: any) => {
     const navigate = useNavigate()
     const location = useLocation()
     const { xp } = location.state || {}
+    const [displayXP, setDisplayXP] = useState(0)
+    const [randomMessage, setRandomMesasge] = useState("")
     const messages = ["Done", "Good job!", "YEAAAH!", "Amazing", "strong", "You are so healthy...", "Just look at it", "Perfect", "completed."]
     const badMessages = ["Oh no", "Perfection isn't the goal...", "sad, but not bad", "GOOD JOB :|", "you lost some xp..."]
     
-    if (props.doneType === "fail") {
-        var randomMessage = badMessages[Math.floor(Math.random() * badMessages.length)]
-    } else {
-        var randomMessage = messages[Math.floor(Math.random() * messages.length)]
+
+    function countXp() {
+        const controls = animate(0, xp, {
+            duration: 1,
+            ease: "easeInOut",
+            onUpdate(latest) {
+                setDisplayXP(Math.floor(latest))
+            }
+        })
+        return () => controls.stop()
     }
 
-    if (props.doneType === "task") {
-        var colors = {bg_color: "var(--green-color)", xp_color: "var(--dark-green-color)"}
-    } else if (props.doneType === "habit") {
-        var colors = {bg_color: "var(--yellow-color)", xp_color: "var(--dark-yellow-color)"}
-    } else if (props.doneType === "fail") {
-        var colors = {bg_color: "var(--orange-color", xp_color: "var(--red-color)"}
-    } else {
-        var colors = {bg_color: "white", xp_color: "var(--dark-blue-color)"}
+    function chooseMessage() {
+        if (props.doneType === "fail") {
+            setRandomMesasge(badMessages[Math.floor(Math.random() * badMessages.length)])
+        } else {
+            setRandomMesasge(messages[Math.floor(Math.random() * messages.length)])
+        }
     }
+
+    async function updateStreak() {
+        // data from here gets passed to StreakCelebration
+        try {
+            const streakResponse = await axiosInstance.post("/users/stats/streak/update")
+            if (streakResponse.data.result.celebrate) {
+                navigate("/streak-celebration", {state: {streak: streakResponse.data.result.streak}})
+                return;
+            } else {
+                navigate("/dashboard")
+                return;
+            }
+        } catch(error: any) {
+            console.error("Error updating streak: ")
+        }
+    }
+
+    useEffect(() => {
+        countXp()
+        chooseMessage()
+    }, [xp])
 
     return (
-        <div className="container" style={{backgroundColor: colors.bg_color}}>
+        <div className="color-container" style={{backgroundColor: props.doneType === "fail" ? "var(--orange-color)" : "white"}}>
             <div className="col center">
-                <h2 style={{marginTop: 250}}>{randomMessage}</h2>
-                <p className="sm-heading" style={{color: colors.xp_color}}>{props.doneType === "fail" ? `- ${xp}` : `+ ${xp}`} XP</p>
-                <button className="btn-primary to-bottom" style={{width: 300}} onClick={() => navigate("/dashboard")}>
+                <motion.div 
+                    initial={{scale: 3}}
+                    animate={{
+                        scale: 1, 
+                        transition: {duration: 0.5, type: "spring", stiffness: 300, damping: 20}
+                    }}
+                    className="circle-btn black" style={{marginTop: 250}}>
+                    <p className="pixel-sans" style={{margin: 0}}>XP</p>
+                    <p className="pixel-sans" style={{fontSize: 32}}>{props.doneType === "fail" ? `- ${xp}` : `+ ${displayXP}`}</p>
+                </motion.div>
+                <h2 style={{marginTop: 25}}>{randomMessage}</h2>
+                <button className="btn-primary to-bottom" style={{marginBottom: 105}} onClick={updateStreak}>
                     Continue
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
+                    <ArrowForward color="white" width="24" height="24" />
                 </button>
             </div>
         </div>

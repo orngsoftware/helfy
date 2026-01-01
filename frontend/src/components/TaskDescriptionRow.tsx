@@ -1,40 +1,28 @@
-import { useNavigate } from "react-router-dom"
-import { TickIcon, RepeatIcon } from "./Icons"
+import { FlyingStar } from "./Icons"
 import { difficultyColor } from "./Tasks"
 
 const TaskDescriptionRow = (props: any) => {
     const { task, isHabit } = props
-    const navigate = useNavigate()
+
+    const xp = isHabit ? (task.xp * 2) : task.xp
 
     return (
-        <div style={{marginBottom: 15}}>
-            <div className="arrow-back" onClick={() => navigate(-1)}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--black-color)" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
-            </div>
-            <h2>{task.name}</h2>
-            <p className="right-text">{task.description}</p>
+        <div style={{margin: "20px 0px 0px 15px"}}>
+            <h3>{task.name}</h3>
+            <p>{task.description}</p>
             <div className="row" style={{margin: "15px 0px"}}>
-                <div className="outline-box">
-                    {isHabit ? (
-                        <div className="icon-row">
-                            <RepeatIcon color="var(--black-color)" width="20" height="20" />
-                            <p className="sm-heading">Habit</p>
-                        </div>
-                    ) : (
-                        <div className="icon-row">
-                            <TickIcon color="var(--black-color)" width="20" height="20" />
-                            <p className="sm-heading">Task</p>
-                        </div>
-                    )}
-                </div>
-                <div className="outline-box" style={{borderColor: difficultyColor(task.difficulty), color: difficultyColor(task.difficulty)}}>
+                <div className="pill-container">
                     <div className="icon-row">
-                        <p className="sm-heading">{task.difficulty}</p>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill={difficultyColor(task.difficulty)} viewBox="0 0 256 256"><path d="M221.87,90.86a4,4,0,0,0-6.17-.62l-75.42,75.42A8,8,0,0,1,129,154.35l92.7-92.69a8,8,0,0,0-11.32-11.32L197,63.73A112.05,112.05,0,0,0,22.34,189.25,16.09,16.09,0,0,0,37.46,200H218.53a16,16,0,0,0,15.11-10.71,112.28,112.28,0,0,0-11.77-98.43ZM57.44,166.41a8,8,0,0,1-6.25,9.43,7.89,7.89,0,0,1-1.6.16,8,8,0,0,1-7.83-6.41A88.06,88.06,0,0,1,143.59,65.38a8,8,0,0,1-2.82,15.75,72.07,72.07,0,0,0-83.33,85.28Z"></path></svg>
+                        <FlyingStar height={20} />
+                        <p className="pixel-sans">+ {task.delayed ? task.delayed_xp : xp} XP</p>
                     </div>
                 </div>
-                <div className="outline-box">
-                    <p className="sm-heading">+ {task.delayed ? task.delayed_xp : task.xp} xp</p>
+                {isHabit ? (
+                <div className="pill-container">
+                    <p className="pixel-sans">Streak: {task.streak}</p>
+                </div>) : ""}
+                <div className="pill-container" style={{backgroundColor: difficultyColor(task.difficulty)}}>
+                    <p className="pixel-sans">{task.difficulty}/5</p>
                 </div>
             </div>
         </div>

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select, Select
+from sqlalchemy import select
 from ..exceptions import DuplicateError
 from ..models import Tasks, UserTasks, UserHabits, Users
-from .users import change_xp, update_last_completed, increase_streak
+from .users import change_xp
 
 class TaskService:
     def __init__(self, db: Session, user: Users):
@@ -58,8 +58,6 @@ class TaskService:
             task_id=task_id,
             completed=True
         )
-        update_last_completed(self.db, self.user.id)
-        increase_streak(self.db, self.user.id)
         self.db.add(new_complete)
         if task.day < user_day:
             change_xp(self.db, task.delayed_xp, self.user.current_plan.id)

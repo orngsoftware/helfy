@@ -1,15 +1,14 @@
 import { Link } from "react-router-dom";
-import { LandingFooter } from "./Landing";
 
 const PrivacyPolicy = () => {
     return (
         <div className="container">
-            <div className="col center-align">
-                <div style={{textAlign: "left"}}>
-                    <h1>Privacy Policy</h1>
-                    <p>Helfy ("we", "us", or "our") values your privacy. This Privacy Policy explains how we collect, use, 
+            <div className="col center-align no-max-width" style={{marginTop: 50, marginBottom: 50}}>
+                <h1>Privacy Policy</h1>
+                <div className="card" style={{maxWidth: 750, marginTop: 25}}>
+                    <p style={{maxWidth: 750}}>Helfy ("we", "us", or "our") values your privacy. This Privacy Policy explains how we collect, use, 
                         and protect your personal information when you use our web application.</p>
-                    <p style={{borderBottom: "2px solid var(--grey-color)"}}>
+                    <p style={{borderBottom: "2px solid var(--grey-color)", maxWidth: 750}}>
                         We collect <span style={{fontWeight: "bold"}}>email address</span> to:
                         <ul>
                             <li>Authenticate you during Log-In <span style={{fontWeight: "bold"}}>to provide an access to app features</span></li>
@@ -18,7 +17,7 @@ const PrivacyPolicy = () => {
                             <li>Collect feedback about existing services and products.</li>
                         </ul>
                     </p>
-                    <p style={{borderBottom: "2px solid var(--grey-color)"}}>
+                    <p style={{borderBottom: "2px solid var(--grey-color)", maxWidth: 750}}>
                         <ul>
                             <li>We <span style={{fontWeight: "bold"}}>do not sell, trade, or rent</span> your personal data to third parties.</li>
                             <li>We do not use any third-party analytics or tracking tools.</li>
@@ -26,7 +25,7 @@ const PrivacyPolicy = () => {
                             <li>We do not use cookies or tracking technologies.</li>
                         </ul>
                     </p>
-                    <p>
+                    <p style={{maxWidth: 750}}>
                         As a user in the European Union (EU), you have the right to:
                         <ul>
                             <li>Access, update, or delete your personal data</li>
@@ -36,7 +35,6 @@ const PrivacyPolicy = () => {
                         To exercise these rights, contact us at: <Link to="mailto: while.no.helf@gmail.com" target="_blank">while.no.helf@gmail.com</Link>
                     </p>
                 </div>
-                <LandingFooter />
             </div>
         </div>
     )

@@ -1,8 +1,8 @@
-from math import floor
 from sqlalchemy.orm import Session
 from sqlalchemy import select, insert, update, not_
 from ..models import Companions, Users, UserPlans, Accessories, CompanionAccessories
 from ..exceptions import DuplicateError
+from ..config import get_settings
 
 class CompanionService:
     def __init__(self, db: Session, user: Users):
@@ -14,9 +14,14 @@ class CompanionService:
         if self.db.execute(select(Companions.id).where(
             Companions.user_plan_id == self.user.current_plan.id)).scalar_one_or_none():
             raise DuplicateError("User can't have more than one companion")
+        
+        settings = get_settings()
+        BUCKET_NAME = settings.aws_s3_bucket_name
+        src_url = f"https://{BUCKET_NAME}.s3.eu-north-1.amazonaws.com/base_{self.user.current_plan.plan.base_companion}.png"
+
         companion = Companions(
             user_plan_id=self.user.current_plan.id,
-            type=self.user.current_plan.plan.default_companion_type
+            url=src_url
         )
         self.db.add(companion)
         self.db.commit()
@@ -30,6 +35,26 @@ class CompanionService:
             ),
             Accessories.plan_id == self.user.current_plan.plan_id
             )).scalars().all()
+        return accessories
+
+    def get_inventory(self) -> list[Accessories]:
+        result = self.db.execute(select(Accessories, CompanionAccessories).join(
+            CompanionAccessories,
+            (CompanionAccessories.accessory_id == Accessories.id) & 
+            (CompanionAccessories.companion_id == self.user.current_plan.companion.id)
+        )).all()
+
+        accessories = []
+
+        for acc, acc_comp in result:
+            accessories.append({
+                "accessory_id": acc_comp.accessory_id,
+                "name": acc.name,
+                "level": acc.level,
+                "url": acc.url,
+                "shown": bool(acc_comp.shown)
+            })
+
         return accessories
 
     def add_accessory(self, accessory_id: int) -> None:
@@ -61,24 +86,5 @@ class CompanionService:
             CompanionAccessories.accessory_id == accessory_id
         ).values(shown=not_(CompanionAccessories.shown)))
 
-        self.db.commit()
-        return None
-    
-    def change_companion_type(self, new_type: str) -> None:
-        self.db.execute(update(Companions).where(
-            Companions.user_plan_id == self.user.current_plan.id).values(
-                type=new_type
-        ))
-        self.db.commit()
-        return None
-
-    def update_stage(self):
-        new_stage = floor(self.user.current_plan.learning_xp / 10)
-        if self.user.current_plan.companion.stage == new_stage:
-            return None
-        self.db.execute(update(Companions).where(
-            Companions.user_plan_id == self.user.current_plan.id).values(
-                stage=new_stage
-        ))
         self.db.commit()
         return None

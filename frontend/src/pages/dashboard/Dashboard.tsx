@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import Divider from "../../components/Divider";
 import Habits from "../../components/Habits";
-import { RepeatIcon, TickIcon } from "../../components/Icons";
 import Learn from "../../components/Learn";
-import Streak from "../../components/Streak";
 import Tasks from "../../components/Tasks";
 import { motion, AnimatePresence } from "motion/react"
 import axiosInstance from "../../lib/apiClient";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
+import SmallStreak from "../../components/Streak";
+import { SubscribeButton } from "../../components/StripeComponents";
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState("habits")
@@ -18,9 +17,14 @@ const Dashboard = () => {
         habitsData: [],
         learnData: {},
         tasksData: [],
+        streak: 0,
+        streakStatus: "lost",
         userCompletedLearning: true,
-        current_plan: { name: "", user_days: ""}
+        current_plan: { name: "", user_days: "", category: ""},
+        is_user_paid: false
     })
+    const [currentTaskID, setCurrentTaskID] = useState(0)
+    const [headerStyling, setHeaderStyling] = useState({bgColor: "", highlightColor: ""})
 
     async function fetchData() {
         setLoading(true)
@@ -28,79 +32,107 @@ const Dashboard = () => {
             const planResponse = await axiosInstance.get("/plans/current")
             const tasksResponse = await axiosInstance.get("/tasks")
             const habitResponse = await axiosInstance.get("/tasks/habits")
-            const learnResponse = await axiosInstance.get("/learning?short=True")
+            const learnResponse = await axiosInstance.get("/learning")
+            const streakResponse = await axiosInstance.get("/users/stats/streak")
 
             setData({
                 habitsData: habitResponse.data.habits,
-                learnData: learnResponse.data.learning,
+                learnData: learnResponse.data,
                 tasksData: tasksResponse.data.tasks,
+                streak: streakResponse.data.result.streak,
+                streakStatus: streakResponse.data.result.status,
                 userCompletedLearning: learnResponse.data.completed,
-                current_plan: planResponse.data.current_plan
+                current_plan: planResponse.data.current_plan,
+                is_user_paid: planResponse.data.current_plan.is_user_paid
             })
         } catch(error: any) {
-            console.log("Error fetching data: ", error)
+            console.error("Error fetching data: ", error)
         } finally {
             setLoading(false)
         }
         return;
     }
 
+    function nextTask() {
+        if (activeTab === "habits") {
+            if (currentTaskID + 1 < data.habitsData.length) {
+                setCurrentTaskID(prev => prev + 1)
+            }
+        } else if (activeTab === "tasks") {
+            if (currentTaskID + 1 < data.tasksData.length) {
+                setCurrentTaskID(prev => prev + 1)
+            }
+        }
+    }
+
+    function switchTabs(newTab: string) {
+        console.log(currentTaskID)
+        setCurrentTaskID(0)
+        setActiveTab(newTab)
+        return;
+    }
+
+    function previousTask() {
+        if (currentTaskID - 1 >= 0 ) {
+            setCurrentTaskID(prev => prev - 1)
+            return;
+        }
+    }
+
+    function styleHeader(planCategory: string) {
+        switch (planCategory) {
+            case "Training":
+                setHeaderStyling({bgColor: "#ff70a6", highlightColor: "#d5437bff"})
+                break;
+            case "Nutrition":
+                setHeaderStyling({bgColor: "var(--green-color)", highlightColor: "var(--dark-green-color)"})
+                break;
+        }
+    }
+
     useEffect(() => {
         fetchData()
-    }, [])
+        styleHeader(data.current_plan.category)
+    }, [data.current_plan.category])
 
     return isLoading ? (
         <Loading />
     ) : (
         <div className="container">
-            <div className="col" style={{marginTop: 10}}>
-                <div className="row" style={{marginBottom: 5}}>
-                    <div className="icon-row">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--black-color)" viewBox="0 0 256 256"><path d="M224,48V152a16,16,0,0,1-16,16H112v16a8,8,0,0,1-13.66,5.66l-24-24a8,8,0,0,1,0-11.32l24-24A8,8,0,0,1,112,136v16h96V48H96v8a8,8,0,0,1-16,0V48A16,16,0,0,1,96,32H208A16,16,0,0,1,224,48ZM168,192a8,8,0,0,0-8,8v8H48V104h96v16a8,8,0,0,0,13.66,5.66l24-24a8,8,0,0,0,0-11.32l-24-24A8,8,0,0,0,144,72V88H48a16,16,0,0,0-16,16V208a16,16,0,0,0,16,16H160a16,16,0,0,0,16-16v-8A8,8,0,0,0,168,192Z"></path></svg>
-                        <h3 className="clickable" onClick={() => navigate("/plans")}>{data.current_plan.name}</h3>
+            <div className="col" style={{gap: 10, marginTop: 0, marginBottom: 110}}>
+                <div className="top-card clickable" style={{backgroundColor: headerStyling.bgColor}} onClick={() => navigate("/plans")}>
+                    <div className="text-subtext">
+                        <p style={{margin: 0}}>{data.current_plan.category}</p>
+                        <h3 style={{margin: 0}} className="pixel-sans">{data.current_plan.name}</h3>
                     </div>
-                    <div style={{marginLeft: "auto"}}>
-                        <Streak size="14" />
+                    <SmallStreak streak={data.streak} status={data.streakStatus} bgColor={headerStyling.highlightColor} />
+                </div>
+                <h3>Take Action Today</h3>
+                <div className="row" style={{alignItems: "center"}}>
+                    <div className="row">
+                        <button className="btn-primary" style={{
+                            width: "fit-content", 
+                            height: 35,
+                            backgroundColor: activeTab === "habits" ? "var(--black-color)" : "white",
+                            color: activeTab === "habits" ? "white" : "var(--dark-grey-color)"
+                        }} onClick={() => switchTabs("habits")}>Habits</button>
+                        <button className="btn-primary" style={{
+                            width: "fit-content",
+                            height: 35,
+                            backgroundColor: activeTab === "tasks" ? "var(--black-color)" : "white",
+                            color: activeTab === "tasks" ? "white" : "var(--dark-grey-color)"
+                        }} onClick={() => switchTabs("tasks")}>Tasks</button>
+                    </div>
+                    <div className="row" style={{marginLeft: "auto"}}>     
+                        <div className="circle-btn"><p style={{color: "var(--dark-grey-color)"}}>{activeTab === "habits" ? data.habitsData.length : data.tasksData.length}</p></div>                   
+                        <button className="circle-btn" onClick={previousTask}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--dark-grey-color)" viewBox="0 0 256 256"><path d="M168.49,199.51a12,12,0,0,1-17,17l-80-80a12,12,0,0,1,0-17l80-80a12,12,0,0,1,17,17L97,128Z"></path></svg>
+                        </button>
+                        <button className="circle-btn" onClick={nextTask}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--dark-grey-color)" viewBox="0 0 256 256"><path d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"></path></svg>
+                        </button>
                     </div>
                 </div>
-                <Divider color="var(--dark-grey-color)" />
-                <h3 style={{marginTop: 25}}>Learn</h3>
-                <div className="col center" style={{margin: 0}}>
-                    <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
-                </div>
-                
-                <h3 style={{marginBottom: 15, marginTop: 25}}>Take action today</h3>
-                <div className="row" style={{marginBottom: 15, gap: 25}}>
-                    <motion.div whileTap={{scale: 0.9}} 
-                        animate={{scale: 1}} 
-                        transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 20,
-                    }}>
-                        <div className={activeTab === "habits" ? "outline-box tab-active" : "outline-box tab"} style={{cursor: "pointer"}} onClick={() => setActiveTab("habits")}>
-                            <div className="icon-row">
-                                <RepeatIcon color={activeTab === "habits" ? "var(--dark-green-color)": "var(--black-color)"} width="20" height="20" />
-                                <p>Habits</p>
-                            </div>
-                        </div>
-                    </motion.div>
-                    <motion.div whileTap={{scale: 0.9}} 
-                        animate={{scale: 1}} 
-                        transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 20,
-                    }}>
-                        <div className={activeTab === "tasks" ? "outline-box tab-active" : "outline-box tab"} style={{cursor: "pointer"}} onClick={() => setActiveTab("tasks")}>
-                            <div className="icon-row">
-                                <TickIcon color={activeTab === "tasks" ? "var(--dark-green-color)": "var(--black-color)"} width="20" height="20" />
-                                <p>Tasks</p>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-                <Divider color="var(--dark-grey-color)" />
                 <AnimatePresence mode="wait">
                 {activeTab === "habits" ? (
                     <motion.div
@@ -112,7 +144,7 @@ const Dashboard = () => {
                     exit={{ opacity: 0}}
                     transition={{ duration: 0.2, ease: "easeInOut"}}
                     >
-                    <Habits habitsData={data.habitsData}/>
+                    <Habits habitsData={data.habitsData[currentTaskID]}/>
                     </motion.div>
                 ) : (
                     <motion.div
@@ -124,10 +156,15 @@ const Dashboard = () => {
                     exit={{ opacity: 0}}
                     transition={{ duration: 0.2, ease: "easeInOut"}}
                     >
-                    <Tasks tasksData={data.tasksData}/>
+                    <Tasks tasksData={data.tasksData[currentTaskID]}/>
                     </motion.div>
                 )}
                 </AnimatePresence>
+                <h3>Learn</h3>
+                <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
+                {data.is_user_paid === false ? (
+                    <SubscribeButton bgClass="upgrade-bg" errorNavigate="/dashboard">Upgrade to Plus</SubscribeButton>
+                ): ""}
             </div>
         </div>
     )

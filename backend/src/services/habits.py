@@ -4,22 +4,60 @@ from datetime import date, timedelta
 from typing import List
 from ..exceptions import DuplicateError, TimeGapError
 from ..models import Tasks, UserHabits, Users
-from .users import change_xp, update_last_completed, increase_streak
+from .users import change_xp
 
 class HabitService:
     def __init__(self, db: Session, user: Users):
         self.db = db
         self.user = user
-    
+
+    def _update_streak(self, task_id: int) -> None:
+        habit = self.db.execute(select(UserHabits).where(
+            UserHabits.user_id == self.user.id,
+            UserHabits.task_id == task_id
+        )).scalar_one_or_none()
+
+        if habit.last_completed == date.today() - timedelta(days=1):
+            self.db.execute(update(UserHabits).where(
+                UserHabits.user_id == self.user.id,
+                UserHabits.task_id == task_id
+            ).values(streak=UserHabits.streak + 1))
+            self.db.commit()
+            return None
+        
+        elif habit.last_completed == date.today():
+            return None
+        
+        self.db.execute(update(UserHabits).where(
+            UserHabits.user_id == self.user.id,
+            UserHabits.task_id == task_id
+        ).values(streak=1))
+        
+        self.db.commit()
+        return None
+
     def get_uncompleted_habits(self) -> List[Tasks]:
         """Returns list of habits, that user hasn't completed today."""
-        user_habits = select(UserHabits.task_id).where(
-            UserHabits.user_id == self.user.id,
-            UserHabits.last_completed != date.today())
-        habits = self.db.execute(select(Tasks).where(
-            Tasks.id.in_(user_habits)
-        )).scalars().all()
-        return habits
+        result = self.db.execute(select(UserHabits, Tasks).join(
+            UserHabits,
+            (UserHabits.task_id == Tasks.id) &
+            (UserHabits.user_id == self.user.id) &
+            (UserHabits.last_completed != date.today())
+        )).all()
+        user_habits = []
+
+        for habit, task in result:
+            user_habits.append({
+                "id": task.id,
+                "name": task.name,
+                "description": task.description,
+                "difficulty": task.difficulty,
+                "xp": task.xp,
+                "delayed_xp": task.delayed_xp,
+                "streak": habit.streak
+            })
+
+        return user_habits
     
     def complete_habit(self, task_id: int) -> None:
         """Completes habit, updates streak and increases XP"""
@@ -27,14 +65,14 @@ class HabitService:
             Tasks.id == task_id,
             Tasks.plan_id == self.user.current_plan.plan_id)).scalar_one_or_none()
 
+        self._update_streak(task_id)
+
         self.db.execute(update(UserHabits).where(
             UserHabits.user_id == self.user.id,
             UserHabits.task_id == task_id
         ).values(last_completed=date.today()))
         
-        update_last_completed(self.db, self.user.id)
-        increase_streak(self.db, self.user.id)
-        change_xp(self.db, task.xp*2, self.user.id, self.user.current_plan.id)
+        change_xp(self.db, task.xp*2, self.user.current_plan.id)
         self.db.commit()
         return None
     
@@ -51,7 +89,6 @@ class HabitService:
 
         change_xp(self.db,
                   task.xp, 
-                  self.user.id,
                   self.user.current_plan.id,
                   decrease=True)
         self.db.commit()
