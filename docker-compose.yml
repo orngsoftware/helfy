@@ -1,6 +1,26 @@
 networks:
   net:
 services:
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks:
+      - net
+  nginx:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks:
+      - net
   backend:
     container_name: backend
     ports:
@@ -10,18 +30,7 @@ services:
     build:
       context: ./backend
     networks:
-      - net
-  database:
-    container_name: database
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    networks:
-      - net
-
 volumes:
   pg_data:
+  certbot_conf:
+  certbot_www:
