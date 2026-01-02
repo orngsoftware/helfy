@@ -30,6 +30,7 @@ services:
     build:
       context: ./backend
     networks:
+      - net
 volumes:
   pg_data:
   certbot_conf:
