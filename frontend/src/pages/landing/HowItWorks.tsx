@@ -6,7 +6,7 @@ const HowItWorks = () => {
     return (
         <div className="col center-align no-max-width" style={{margin: 0, marginBottom: 50}}>
             <div className="col center-align no-max-width">
-                <h1 style={{marginTop: 50}}>How Helfy works</h1> 
+                <h1 style={{marginTop: 120}}>How Helfy works</h1> 
                 <p className="grey-subtext" style={{maxWidth: 500, textAlign: "center"}}>Action is what matters, so we tried to make the approach as actionable and clear as possible</p>
             </div>
             <div className="col center-align no-max-width" style={{gap: 15, marginBottom: 25}}>

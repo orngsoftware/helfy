@@ -11,7 +11,7 @@ export const LandingFooter = () => {
             <footer>
                 <div className="col">
                     <div className="icon-row">
-                        <img className="pixelated-img" src="/assets/icons/helfy_icon_white.png" style={{width: 32, marginRight: 5}}/>
+                        <img className="pixelated-img" src="/assets/icons/helfy_icon_white.png" style={{width: 32, marginLeft: 5}}/>
                         <h1>Helfy</h1>
                     </div>
                     <p>Improve your health simpler in gamified way.</p>
@@ -117,7 +117,7 @@ const HomePage = () => {
             <div className="card floating-card square-card" id="landing-icon-square2">
                 <img src="/assets/icons/flyingstar.png" style={{height: 48, width: 48}} className="pixelated-img" />
             </div>
-            <div className="col center-align no-max-width" style={{marginTop: 50, textAlign: "center"}}>
+            <div className="col center-align no-max-width" style={{marginTop: 150, textAlign: "center"}}>
                 <h1>Improve your Health <span className="pixel-sans">Cooler</span></h1> 
                 <p className="grey-subtext" style={{maxWidth: "none", marginBottom: 20}}>Improve your <span className="bold">Nutrition & Training</span> in Gamified Way</p>
                 <button className="btn-primary fit-content" onClick={() => navigate("/sign-up")}>Get Started</button>
@@ -138,7 +138,7 @@ const HomePage = () => {
                     </div>
                 </div>
             </motion.div>
-            <div className="rect-bg" style={{marginTop: 200, borderRadius: "15px 15px 0px 0px"}}>
+            <div className="rect-bg" style={{marginTop: 170, borderRadius: "15px 15px 0px 0px"}}>
                 <div className="row-landing">
                     <img src="/assets/PhoneDemo.png" style={{width: 320, marginTop: 45}}/>
                     <div className="col no-max-width">

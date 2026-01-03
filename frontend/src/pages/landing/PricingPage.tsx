@@ -6,7 +6,7 @@ const PricingPage = () => {
     const navigate = useNavigate()
 
     return (
-        <div className="col center-align no-max-width" style={{margin: "50px 0px"}}>
+        <div className="col center-align no-max-width" style={{margin: "125px 0px 50px"}}>
             <h1>Choose Your Plan</h1>
             <p className="grey-subtext" style={{maxWidth: 500 , textAlign: "center", marginBottom: 25}}>Unlock all features and unlimited use of the application to improve your health even cooler</p>
             <div className="row-landing" style={{gap: 25}}>
