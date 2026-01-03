@@ -31,6 +31,17 @@ services:
       context: ./backend
     networks:
       - net
+  database:
+    container_name: database
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - net
 volumes:
   pg_data:
   certbot_conf:
