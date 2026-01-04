@@ -12,7 +12,7 @@ const AuthGoogle = () => {
         try {
             const response = await authAxios.post("/auth/google/callback", { code: code})
             setAccessToken(response.data.token.access_token)
-            navigate("/dashboard")
+            navigate("/plans")
         } catch(error: any) {
             console.error("Google callback error: ", error)
         }
