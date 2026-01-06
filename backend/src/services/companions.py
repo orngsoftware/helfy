@@ -15,9 +15,7 @@ class CompanionService:
             Companions.user_plan_id == self.user.current_plan.id)).scalar_one_or_none():
             raise DuplicateError("User can't have more than one companion")
         
-        settings = get_settings()
-        BUCKET_NAME = settings.aws_s3_bucket_name
-        src_url = f"https://{BUCKET_NAME}.s3.eu-north-1.amazonaws.com/base_{self.user.current_plan.plan.base_companion}.png"
+        src_url = f"https://helfy.space/s3/base_{self.user.current_plan.plan.base_companion}.png"
 
         companion = Companions(
             user_plan_id=self.user.current_plan.id,

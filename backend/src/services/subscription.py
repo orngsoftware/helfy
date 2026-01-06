@@ -14,12 +14,12 @@ def create_plus_checkout_session(customer_id: str) -> str:
 
     checkout_session = stripe.checkout.Session.create(
         customer=customer_id,
-        success_url="http://localhost:5173/dashboard",
-        cancel_url="http://localhost:5173/dashboard",
+        success_url="http://helfy.space/dashboard",
+        cancel_url="http://helfy.space/dashboard",
         payment_method_types=["card"],
         mode="subscription",
         line_items=[{
-            "price": "price_1SWITYEAmky5NJk1mKhzvRHX", # this is test one 
+            "price": "price_1SWA2SCZUBdaSV76yP1zzeoi",
             "quantity": 1
         }]
     )
