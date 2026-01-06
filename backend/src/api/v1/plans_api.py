@@ -34,16 +34,15 @@ def get_current_plan(user: Annotated[Users, Depends(get_current_user)]):
 def start_plan(db: Annotated[Session, Depends(get_session)],
                user: Annotated[Users, Depends(get_current_user)],
                plan_id: int):
-    if user.current_plan.plan_id == plan_id:
-        update_current_plan(db, user.id, plan_id)
-        msg = "Couldn't start the same plan again. Switching instead"
-        
-    elif is_plus(user) or len(user.plans) == 0:
+    if is_plus(user) or len(user.plans) == 0:
         plan_service = PlanService(db, user)
         plan_service.create_user_plan(plan_id)
         companion_service = CompanionService(db, user)
         companion_service.create_default_companion()
         msg = "Successfully started a new plan for the user"
+    elif user.current_plan.plan_id == plan_id:
+        update_current_plan(db, user.id, plan_id)
+        msg = "Couldn't start the same plan again. Switching instead"
     else:
         raise HTTPException(status_code=403, detail="User does not have rights to do it. Plan upgrade is required.")
     return {"ok": True, "msg": msg}
