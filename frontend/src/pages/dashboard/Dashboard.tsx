@@ -162,9 +162,7 @@ const Dashboard = () => {
                 </AnimatePresence>
                 <h3>Learn</h3>
                 <Learn learnData={data.learnData} userCompleted={data.userCompletedLearning} />
-                {data.is_user_paid === false ? (
-                    <SubscribeButton bgClass="upgrade-bg" errorNavigate="/dashboard">Upgrade to Plus</SubscribeButton>
-                ): ""}
+                {data.is_user_paid === false && <SubscribeButton bgClass="upgrade-bg" errorNavigate="/dashboard">Upgrade to Plus</SubscribeButton>}
             </div>
         </div>
     )

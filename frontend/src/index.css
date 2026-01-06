@@ -569,6 +569,15 @@ footer {
     color: white;
 }
 
+.circle-btn.black {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--black-color);
+    height: 100px;
+    width: 100px;
+    cursor: auto;
+}
+
 @keyframes flash {
   0% {
     background-color: #FFF2;
