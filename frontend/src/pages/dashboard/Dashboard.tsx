@@ -43,7 +43,7 @@ const Dashboard = () => {
                 streakStatus: streakResponse.data.result.status,
                 userCompletedLearning: learnResponse.data.completed,
                 current_plan: planResponse.data.current_plan,
-                is_user_paid: planResponse.data.current_plan.is_user_paid
+                is_user_paid: planResponse.data.is_user_paid
             })
         } catch(error: any) {
             console.error("Error fetching data: ", error)
