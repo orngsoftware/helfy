@@ -120,7 +120,7 @@ export const UpgradePopUp = ({ closePopUp }: any) => {
                         <h2 style={{marginBottom: 0}}>€15</h2>
                         <p className="grey-subtext">per month</p>
                     </div>
-                    <SubscribeButton>Upgrade Now</SubscribeButton>
+                    <SubscribeButton bgClass="upgrade-bg">Upgrade Now</SubscribeButton>
                     <div className="col">
                         <p className="sm-heading to-left" style={{marginTop: 15}}>What will you get</p>
                         <div className="icon-row">
@@ -135,7 +135,7 @@ export const UpgradePopUp = ({ closePopUp }: any) => {
                             <TickIcon color="var(--dark-grey-color)" width={20} height={20} />
                             <p className="grey-subtext">Personal support</p>
                         </div>
-                        <span style={{marginTop: 25}}><Link to="/">View Pricing Page</Link></span>
+                        <span style={{marginTop: 25}}><Link to="/pricing">View Pricing Page</Link></span>
                     </div>
                 </motion.div>
             </AnimatePresence>

@@ -42,6 +42,18 @@ const PlanChoicePage = () => {
         }
     }
 
+    async function switchPlan(planID: number) {
+        try {
+            await axiosInstance.patch(`/plans/switch/${planID}`)
+            navigate("/dashboard")
+        } catch(error: any) {
+            if (error.response?.status === 400) {
+                startPlan(planID)
+            }
+            console.error("Error switching to the plan: ", error)
+        }
+    }
+
     useEffect(() => {
         fetchData()
     }, [])
@@ -59,7 +71,7 @@ const PlanChoicePage = () => {
                     <p className="sm-heading">No plans</p>
                 ) : (
                     data.map((plan: any) => (
-                        <div className="card clickable" onClick={() => startPlan(plan.id)}>
+                        <div className="card clickable" onClick={() => switchPlan(plan.id)}>
                             <div className="row">
                                 <h3 className="pixel-sans">{plan.name}</h3>
                                 {plan.status && (

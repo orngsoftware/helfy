@@ -52,6 +52,9 @@ def start_plan(db: Annotated[Session, Depends(get_session)],
 def switch_plan(db: Annotated[Session, Depends(get_session)],
                 user: Annotated[Users, Depends(get_current_user)],
                 plan_id: int):
-    update_current_plan(db, user.id, plan_id)
+    try:
+        update_current_plan(db, user.id, plan_id)
+    except KeyError:
+        raise HTTPException(status_code=400, detail="User doesn't have this plan")
     return {"ok": True, "msg": f"Switched to {user.current_plan.plan.name}"}
 
